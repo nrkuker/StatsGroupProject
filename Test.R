@@ -1,5 +1,6 @@
 # Git Test Script
 
 get_yesterday <- function(x) {
-  return(Sys.Date() - 1)
+  x <- (Sys.Date() - 1)
+  return(x)
 }
