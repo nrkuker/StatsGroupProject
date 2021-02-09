@@ -9,29 +9,17 @@ bikes <- read.csv("data/Capital Bike Sharing data by hour.csv") %>%
 
 month_levels <- c(
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-)
-
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 season_levels <- c("Winter", "Spring", "Summer", "Fall")
-
 weather_levels <- c("Clear", "Cloudy", "Light Precip.", "Heavy Precip.")
 
+total_riders <- bikes %>% summarise(totalRiders = sum(cnt)) %>% as.numeric()  # 3,292,679
+total_cas <- bikes %>% summarise(totalCas = sum(casual)) %>% as.numeric()
+total_reg <- bikes %>% summarise(totalReg = sum(registered)) %>% as.numeric()
+prop_reg <- round(total_reg/total_riders, 4)
 
-# QUESTION 4 ##########
-# What type of relationship do you see between weather and bike rental?
-# Is the relationship the same for registered vs. casual users?
 
-# rel b/t categorical (ordinal) and quant (contin, sorta)
-# bar, box, dotplot, violin
-
-bikes %>% group_by(weathersit) %>% tally()
-
-bikes %>% filter(weathersit == 4)
-
-# total num riders = 3,292,679
-bikes %>% summarise(totalRiders = sum(cnt))
-
-# adjusted datasets to work with
+# Processed datasets ####
 B <- bikes %>% group_by(weathersit) %>% 
   mutate(weathersit = recode_factor(weathersit, !!!weather_levels)) %>%
   summarise(riders = sum(cnt), 
@@ -48,12 +36,28 @@ B.long <- bikes %>% select(dteday, hr, weathersit, casual:cnt) %>%
   mutate(weathersit = recode_factor(weathersit, !!!weather_levels)) %>%
   group_by(weathersit)
 
-table(B.long$ridertype, B.long$weathersit)
-
 B.long.summary <- B.long %>% group_by(weathersit, ridertype) %>% 
   summarise(N = sum(numRiders)) %>% 
   group_by(weathersit) %>% 
   mutate(prop_weather = N/sum(N))
+
+
+
+
+# QUESTION 4 ##########
+# What type of relationship do you see between weather and bike rental?
+# Is the relationship the same for registered vs. casual users?
+
+# rel b/t categorical (ordinal) and quant (contin, sorta)
+# bar, box, dotplot, violin
+
+# num hrs w/ obs per weather type NOT NUM RIDERS
+bikes %>% group_by(weathersit) %>% tally()
+
+bikes %>% filter(weathersit == 4)
+
+table(B.long$ridertype, B.long$weathersit)
+
 
 
 # bar of riders for each weather cat
@@ -80,4 +84,26 @@ ggplot(B2, aes(x = weathersit, y = prop_reg)) +
 
 ggplot(B2, aes(x = weathersit, y = cnt)) + 
   geom_violin(scale = "area")
+
+
+
+# statistical testing?
+# where 0 = casual, 1 = registered
+mean_store <- numeric()
+for(i in 1:1000){
+  mean_store[i] <- mean(sample(c(0, 1), 
+                               size = 100, 
+                               replace = T, 
+                               prob = c(1-prop_reg, prop_reg)))
+}
+mean_store %>% qplot()
+
+
+# THOUGHTS ####
+# Proportion of registered riders in total as a null hypothesis?
+# Does proportion differ significantly when sliced by weather? Does this matter?
+# Crosstab of weather by prop_reg?
+# Filter by weekday/weekend? What's the crosstab then?
+
+
 
