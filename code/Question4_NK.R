@@ -82,6 +82,10 @@ ggplot(B, aes(x = weathersit, y = reg)) + geom_col()
 ggplot(B2, aes(x = weathersit, y = prop_reg)) + 
   geom_boxplot() + coord_flip()
 
+boxplot(prop_reg ~ weathersit, data=B2, col='lightblue')
+
+
+
 ggplot(B2, aes(x = weathersit, y = cnt)) + 
   geom_violin(scale = "area")
 
@@ -96,7 +100,13 @@ for(i in 1:1000){
                                replace = T, 
                                prob = c(1-prop_reg, prop_reg)))
 }
-mean_store %>% qplot()
+hist(mean_store)
+
+
+sum(B.long.summary[1:2,3])
+prop_reg
+prop.test(1875428, 2338173, p = 0.8117)  # Yeah, and? Now what?
+
 
 
 # THOUGHTS ####
