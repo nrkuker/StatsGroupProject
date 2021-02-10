@@ -12,7 +12,7 @@ n <- nrow(NPD)
 sigma <- 1.75
 alpha <- 0.05
 
-# Test BG ####
+# Test BG 10FEB ####
 
 # ROI ####
 
