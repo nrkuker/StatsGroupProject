@@ -5,6 +5,8 @@ library(tidyverse)
 library(lubridate)
 library(modeest)
 library(moments)
+library(car)  # for QQ plots. Not important
+
 
 
 # Load Data ####
@@ -70,6 +72,16 @@ summary(bikes$registered)
 
 quantile(bikes$casual)
 quantile(bikes$registered)
+
+# template for QQ plots, but have NO IDEA how to interpret these
+with(bikes, {
+  qqnorm(temp);
+  qqline(temp)})
+
+with(bikes, qqPlot(temp))
+
+
+
 
 bikes %>% summarise(
   mean(casual), median(casual),
