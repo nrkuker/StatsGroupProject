@@ -13,6 +13,22 @@ sigma <- 1.75
 alpha <- 0.05
 
 
+
+# Confidence Interval Calculations ####
+x_bar <- mean(NPD$cavities, na.rm = T)
+
+t_alpha <- qt(1-alpha/2, df = n-1)
+SEM <- sigma/sqrt(n)
+
+MoE <- t_alpha * SEM
+
+x_bar - MoE  # lower limit
+x_bar + MoE  # upper limit
+
+
+
+
+
 # ROI ####
 
 # Givens:
