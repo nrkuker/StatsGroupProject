@@ -94,7 +94,21 @@ round(ROI_upper, 2)
 
 
 # necessary x_bar to break even
-x_even <- fixed_costs / (2*dentists_using*52)
-round(x_even, 3)
+x_even <- round(fixed_costs / (2*dentists_using*52), 3)
 # each dentist using Caridex needs to treat mean of 3.846 cavities per week for NPD to break even
 
+
+# what level of confidence gets us above break even point?
+desired_margin <- x_bar - x_even
+SEM <- sigma/sqrt(n)
+desired_t_alpha <- desired_margin / SEM
+
+t_alpha <- qt(1-alpha/2, df = n-1)
+
+alpha_breakeven <- (1 - pt(desired_t_alpha, df = n-1)) * 2
+confidence_even <- 1-alpha_breakeven
+# at least 94.59% confident that mean cavities per week per dentist will be above breakeven point
+# technically, 94.59% confident mean cavities will be [3.846, 4.184]
+
+x_bar - desired_margin
+x_bar + desired_margin
