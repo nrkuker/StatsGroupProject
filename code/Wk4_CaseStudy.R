@@ -14,7 +14,7 @@ alpha <- 0.05
 
 
 
-# Confidence Interval Calculations ####
+# Confidence Interval: number cavities ####
 # x_bar given
 x_bar <- mean(NPD$cavities, na.rm = T)
 
@@ -49,6 +49,24 @@ mean_CI(x_bar, sigma, n, alpha)
 
 
 
+# Confidence Interval: proportion of dentists using ####
+prop_CI <- function(p_hat, n, alpha){
+  if( ((n*p_hat >=5) & (n*(1 - p_hat) >=5)) ) {
+    SEP <- sqrt(p_hat * (1 - p_hat) / n)
+    z_alpha <- qnorm(1-alpha/2)
+    MoE <- z_alpha*SEP
+    cat("Lower limit of proportion CI is", toString(round(p_hat - MoE, 4)), "\n")
+    cat("Upper limit of proportion CI is", toString(round(p_hat + MoE, 4)), "\n")
+    cat(toString(p_hat), "+/-", toString(round(MoE, 4)), "\n")
+  } else {
+    print("Sample size not large enough to assume Normality")
+  }
+}
+
+prop_CI(0.10, n = 400, alpha = 0.05)
+# [0.0706, 0.1294]
+
+
 # ROI ####
 
 # Givens:
@@ -61,7 +79,10 @@ mean_CI(x_bar, sigma, n, alpha)
   # Sample is n = 400 dentists who "planned to use Caridex", part of the 10000 number from above
   # Each obs is a single dentist and estimated num cavities per week
 
-dentists_using <- 10000
+
+
+# NOTE: This ROI calculation assumes that proportion of dentists using is 10k. Does not consider possible sampling error in proportion.
+dentists_using <- 100000*0.1
 fixed_costs <- 4000000
 
 # Unit costs & profits not dependent on number of cavities filled per year
@@ -90,10 +111,18 @@ ROI_upper <- (total_sales_upper - total_costs_upper)/total_costs_upper * 100
 
 round(ROI_lower, 2)
 round(ROI_upper, 2)
-# 95% CI for ROI: -0.05% - 5.00%
+# 95% CI for ROI: -0.05% - 5.00% (assuming p = 0.10)
+
+# for lower bound of p_hat and lower/upper of x_bar: [-19.26, -14.98]
+# for higher bound of p_hat and lower/upper of x_bar: [14.87, 20.44]
+# for given x_bar, each bound of p_hat: [-17.11, 17.68]
+
+# How to consider the sampling error of x_bar (mean cavities per dentist per week) and p_hat (dentists using Caridex)?
 
 
-# necessary x_bar to break even
+
+# necessary x_bar to break even ####
+# NOTE: assumes p_hat = true population p
 x_even <- round(fixed_costs / (2*dentists_using*52), 3)
 # each dentist using Caridex needs to treat mean of 3.846 cavities per week for NPD to break even
 
