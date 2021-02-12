@@ -141,3 +141,13 @@ confidence_even <- 1-alpha_breakeven
 
 x_bar - desired_margin
 x_bar + desired_margin
+
+
+
+roi <- function(p, x){
+  x <- (10.4*p*x - 4) / (2.6*p*x + 20*p + 4) * 100
+  cat("ROI = ", toString(round(x,2)), "%", "\n")
+}
+roi(0.07, 3.84)  # lowest p & x
+roi(0.13, 4.19)  # highest p & x
+roi(0.10, 4.02)  # sample p & x
