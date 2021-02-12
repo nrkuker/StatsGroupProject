@@ -1,6 +1,6 @@
 # Confidence Interval Case Study ####
 
-# Load Packages & Data ####
+# Packages, Data, Global Variables ####
 library(tidyverse)
 library(readxl)
 
@@ -11,12 +11,15 @@ str(NPD)
 n <- nrow(NPD)
 sigma <- 1.75
 alpha <- 0.05
+dentists_using <- 100000*0.1  # this is population proportion, p
+fixed_costs <- 4000000
+x_bar <- mean(NPD$cavities, na.rm = T)
+
 
 
 
 # Confidence Interval: number cavities ####
 # x_bar given
-x_bar <- mean(NPD$cavities, na.rm = T)
 
 # calculate Margin of Error
 t_alpha <- qt(1-alpha/2, df = n-1)
@@ -32,39 +35,23 @@ upper
 # 95% CI for number of cavities treated per dentist per week:
 # 3.843-4.187
 
-mean_CI <- function(x_bar, sigma, n, alpha){
+mean_CI <- function(x_bar, sigma, n, alpha, decimals){
   if(n >= 50) {
     SEM <- sigma/sqrt(n)
     t_alpha <- qt(1-alpha/2, df = n-1)
     MoE <- t_alpha*SEM
-    cat("Lower limit of mean CI is", toString(round(x_bar - MoE, 2)), "\n")
-    cat("Upper limit of mean CI is", toString(round(x_bar + MoE, 2)), "\n")
-    cat(toString(x_bar), "+/-", toString(round(MoE, 2)), "\n")
+    cat("Lower limit of mean CI is", toString(round(x_bar - MoE, decimals)), "\n")
+    cat("Upper limit of mean CI is", toString(round(x_bar + MoE, decimals)), "\n")
+    cat(toString(x_bar), "+/-", toString(round(MoE, decimals)), "\n")
   } else {
     print("Sample size not large enough to assume Normality")
   }
 }
 
-mean_CI(x_bar, sigma, n, alpha)
+mean_CI(x_bar, sigma, n, alpha, 2)
 
 
 
-# Confidence Interval: proportion of dentists using ####
-prop_CI <- function(p_hat, n, alpha){
-  if( ((n*p_hat >=5) & (n*(1 - p_hat) >=5)) ) {
-    SEP <- sqrt(p_hat * (1 - p_hat) / n)
-    z_alpha <- qnorm(1-alpha/2)
-    MoE <- z_alpha*SEP
-    cat("Lower limit of proportion CI is", toString(round(p_hat - MoE, 4)), "\n")
-    cat("Upper limit of proportion CI is", toString(round(p_hat + MoE, 4)), "\n")
-    cat(toString(p_hat), "+/-", toString(round(MoE, 4)), "\n")
-  } else {
-    print("Sample size not large enough to assume Normality")
-  }
-}
-
-prop_CI(0.10, n = 400, alpha = 0.05)
-# [0.0706, 0.1294]
 
 
 # ROI ####
@@ -113,11 +100,24 @@ round(ROI_lower, 2)
 round(ROI_upper, 2)
 # 95% CI for ROI: -0.05% - 5.00% (assuming p = 0.10)
 
-# for lower bound of p_hat and lower/upper of x_bar: [-19.26, -14.98]
-# for higher bound of p_hat and lower/upper of x_bar: [14.87, 20.44]
-# for given x_bar, each bound of p_hat: [-17.11, 17.68]
+# function to reproduce above calculations
+roi <- function(x_bar){
+  total_costs <- 6000000 + 260000*x_bar
+  total_sales <- 2000000 + 1300000*x_bar
+  
+  x <- (total_sales - total_costs)/total_costs * 100
+  # x <- (10.4*p*x - 4) / (2.6*p*x + 20*p + 4) * 100
+  
+  cat("ROI = ", toString(round(x,2)), "%", "\n")
+}
+roi(3.84)  # lowest x
+roi(4.19)  # highest x
+roi(4.015)  # sample x
+roi(3.846)  # breakeven x
 
-# How to consider the sampling error of x_bar (mean cavities per dentist per week) and p_hat (dentists using Caridex)?
+
+
+
 
 
 
@@ -136,19 +136,14 @@ t_alpha <- qt(1-alpha/2, df = n-1)
 
 alpha_breakeven <- (1 - pt(desired_t_alpha, df = n-1)) * 2
 confidence_even <- 1-alpha_breakeven
-# at least 94.59% confident that mean cavities per week per dentist will be above breakeven point
-# technically, 94.59% confident mean cavities will be [3.846, 4.184]
 
 x_bar - desired_margin
 x_bar + desired_margin
 
+mean_CI(x_bar, sigma, n, alpha = 0.05, 2)
+mean_CI(x_bar, sigma, n, alpha = alpha_breakeven, 4)
 
+# at least 94.59% confident that mean cavities per week per dentist will be above breakeven point
+# technically, 94.59% confident mean cavities will be [3.846, 4.184]
 
-roi <- function(p, x){
-  x <- (10.4*p*x - 4) / (2.6*p*x + 20*p + 4) * 100
-  cat("ROI = ", toString(round(x,2)), "%", "\n")
-}
-roi(0.07, 3.84)  # lowest p & x
-roi(0.13, 4.19)  # highest p & x
-roi(0.10, 4.02)  # sample p & x
 
