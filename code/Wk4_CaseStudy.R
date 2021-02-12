@@ -116,6 +116,18 @@ roi(4.015)  # sample x
 roi(3.846)  # breakeven x
 
 
+# estimate profit
+(2000000 + 1300000*x_bar) - (6000000 + 260000*x_bar)
+2000000 - 6000000 + 1300000*x_bar - 260000*x_bar
+
+profit <- function(x_bar){  # in dollars
+  cat("Profit = $", toString(-4000000 + 1040000*x_bar), "\n")
+}
+
+profit(3.84)  # lowest x
+profit(4.19)  # highest x
+profit(4.015)  # sample x
+profit(3.846154)  # breakeven x (ish)
 
 
 
