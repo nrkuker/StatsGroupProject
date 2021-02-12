@@ -146,8 +146,16 @@ x_bar + desired_margin
 
 roi <- function(p, x){
   x <- (10.4*p*x - 4) / (2.6*p*x + 20*p + 4) * 100
+<<<<<<< HEAD
   cat("ROI = ", toString(round(x,2)), "%", "\n")
 }
 roi(0.07, 3.84)  # lowest p & x
 roi(0.13, 4.19)  # highest p & x
 roi(0.10, 4.02)  # sample p & x
+=======
+  cat("ROI = ", toString(round(x,2)), "%")
+}
+roi(0.07, 3.84)  # lowest p & x
+roi(0.13, 4.19)  # highest p & x
+roi(0.10, 4.015)  # sample p & x
+>>>>>>> 7e4c917aa70b94b3c8c43022a47595064d00d33f
