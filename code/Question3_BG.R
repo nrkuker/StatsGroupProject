@@ -26,6 +26,9 @@ Seasons <- data.frame(season, season_levels)
 mnth <- c(1:12)
 Month <- data.frame(mnth, month_levels)
 
+yr <- c(0,1)
+Years <- data.frame(yr, year_levels)
+
 # QUESTION 3  ##########
 # Is there any relationship between season and bike rental? 
 # Create a visualization displaying the relationship.
@@ -36,6 +39,7 @@ Month <- data.frame(mnth, month_levels)
 #Join Season Name to Bike Demand Data Frame
 Bike_Season <- bikes
 Bike_Season <- left_join(Bike_Season, Seasons, by = "season")
+Bike_Season <- left_join(Bike_Season, Years, by = "yr")
 
 #Create Count for Days in Season
 Bike_Season$days_cnt <- 1
@@ -43,14 +47,15 @@ str(Bike_Season)
 
 #Calculate Daily Demand by Season
 Bike_Seasonality <- Bike_Season %>%
-  select(Season = season_levels, Date = dteday, Demand = cnt, Count = days_cnt) %>%
-  group_by(Season) %>%
+  select(Season = season_levels, Year = year_levels, Date = dteday, Demand = cnt, Count = days_cnt) %>%
+  group_by(Season, Year) %>%
   summarise(Daily_Demand = sum(Demand)/sum(Count))
 
+Bike_Seasonality$Season <- factor(Bike_Seasonality$Season, levels = season_levels)
+
 #Create Bar Plot
-ggplot(Bike_Seasonality, aes(x=Season, y=Daily_Demand, fill=Season)) +
-  geom_bar(stat = "identity") +
-  scale_x_discrete(limits = season_levels) +
+ggplot(Bike_Seasonality, aes(x=Year, y=Daily_Demand, fill=Season)) +
+  geom_bar(position = "dodge", stat = "identity") +
   scale_fill_brewer(palette = "Paired")
 
 #Thoughts ####
@@ -68,9 +73,9 @@ str(Bike_Month)
 
 #Calculate Hourly Demand by Month
 Bike_Monthly <- Bike_Month %>%
-  select(Month = month_levels, Date = dteday, Demand = cnt, Count = hours_cnt) %>%
-  group_by(Month) %>%
-  summarise(Hourly_Demand = sum(Demand)/sum(Count)) 
+  select(Month = month_levels, Year = yr, Date = dteday, Demand = cnt, Count = hours_cnt) %>%
+  group_by(Year, Month) %>%
+  summarise(Hourly_Demand = sum(Demand)/sum(Count)) p
 
 #Create Bar Plot
 ggplot(Bike_Monthly, aes(x=Month, y=Hourly_Demand, fill=Month)) +
