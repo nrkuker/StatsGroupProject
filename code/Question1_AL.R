@@ -48,10 +48,6 @@ names(Count_per_Month)[2] <-  "Riders"
 ggplot(Count_per_Month, aes(x = Month, y = Riders)) + geom_point(alpha = 0.6)+
   stat_smooth (method = "lm", color = "red", se = FALSE)
 
-lm(Month ~ Riders, Count_per_Month)
-
-# you can ignore this plot line for now
-
 #This will be run at the end of the chunk(S) to avoid conflicts w/ other package
 detach("package:lubridate", unload = TRUE)
 detach("package:dplyr", unload = TRUE)
