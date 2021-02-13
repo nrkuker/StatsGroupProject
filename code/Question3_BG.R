@@ -76,7 +76,7 @@ str(Bike_Month)
 Bike_Monthly <- Bike_Month %>%
   select(Month = month_levels, Year = year_levels, Date = dteday, Demand = cnt, Count = hours_cnt) %>%
   group_by(Month, Year) %>%
-  summarise(Hourly_Demand = sum(Demand)/sum(Count))
+  summarise(Hourly_Demand = sum(Demand)/sum(Count), .groups = 'drop') 
 
 Bike_Monthly$Month <- factor(Bike_Monthly$Month, levels = month_levels)
 
