@@ -50,6 +50,13 @@ b_pivotlong %>%
 b_pivotlong.summary <- b_pivotlong %>% group_by(weathersit, ridertype) %>% 
   summarise(N = sum(numRiders)) %>% 
   mutate(prop_ridergivenweather = N/sum(N))
+b_pivotlong.summary <- b_pivotlong.summary %>% group_by(ridertype) %>% mutate(prop_weathergivenrider = N/sum(N))
+# Is there a cleaner way to do above with table()?
+
+b_pivotlong %>% group_by(weathersit) %>% 
+  summarise(N = sum(numRiders)) %>% 
+  mutate(prop_weather = N/sum(N))
+
 
 b_pivotlong.summary2 <- b_pivotlong %>% group_by(weathersit, workingday, ridertype) %>% 
   summarise(N = sum(numRiders)) %>% 
@@ -74,11 +81,9 @@ table(b_pivotlong$ridertype, b_pivotlong$weathersit)
 
 
 
-# this is showing num Obs
-# ggplot(b_pivotlong, aes(x = ridertype, y = ..count..)) + geom_bar() + 
-#   facet_grid(~weathersit)
 
-# THIS IS THE GOOD ONE! Still in progress but good start. ----
+
+# Shows proportion of casual decreases with worsening weather ----
 ggplot(b_pivotlong.summary, aes(weathersit, y = N, fill = ridertype)) + 
   geom_bar(stat = "identity", position = "fill") + 
   labs(title = "How Weather Affects Ridership", 
@@ -86,7 +91,18 @@ ggplot(b_pivotlong.summary, aes(weathersit, y = N, fill = ridertype)) +
        fill = "Rider Type") + 
   geom_text(aes(label = round(prop_ridergivenweather, 3)), position = "fill", vjust = 1)
 
-# OOH THIS ONE'S GOOD TOO! Sliced by workingday
+# breakdown of obs b/t weather cats similar for both rider types
+  # does this contradict previous plot?
+ggplot(b_pivotlong.summary, aes(ridertype, y = N, fill = weathersit)) + 
+  geom_bar(stat = "identity", position = "fill") + 
+  # coord_flip() + 
+  labs(title = "How Weather Affects Ridership") + 
+  geom_text(aes(label = round(prop_weathergivenrider, 3)), position = "fill", vjust = 1)
+
+
+
+
+# This one's pretty interesting: Sliced by workingday
 ggplot(b_pivotlong.summary2, aes(recode_factor(workingday, !!!workday_levels), y = N, fill = ridertype)) + 
   geom_bar(stat = "identity", position = "fill") +
   facet_grid(. ~ weathersit) + 
@@ -98,16 +114,32 @@ ggplot(b_pivotlong.summary2, aes(recode_factor(workingday, !!!workday_levels), y
 
 
 
+
 # overall ridership by weather
-ggplot(B, aes(x = weathersit, y = riders)) + geom_col() + 
+ggplot(B, aes(x = weathersit, y = riders, fill = weathersit)) + geom_col() + 
+  labs(title = "Total Riders by Weather Type", 
+       x = "Weather Type", y = "Total Riders",
+       fill = "Weather Type") +
   geom_text(aes(label = riders), vjust = -0.5)
 
-# ugh so unhelpful
-# b_pivotlong %>% ggplot(aes(x = weathersit, fill = ridertype)) + geom_bar(position = "fill")
+# says same as above but in stacked bar chart
+b_pivotlong %>% group_by(weathersit) %>% 
+  summarise(N = sum(numRiders)) %>% 
+  mutate(prop_weather = N/sum(N)) %>% 
+  ggplot(aes(factor("Riders"), y = N, fill = weathersit)) + 
+  geom_bar(stat = "identity", position = "fill") + 
+  # coord_flip() + 
+  labs(title = "Proportion of Weather Type Over All Observations", 
+       x = NULL, y = "Proportion", 
+       fill = "Weather Type") + 
+  geom_text(aes(label = round(prop_weather, 3)), position = "fill", vjust = 1)
 
-# ggplot(b_propreg, aes(x = weathersit, y = cnt)) + 
-#   geom_violin(scale = "area")
 
+
+
+# boxplot showing total riders decreases as weather worsens
+ggplot(bikes, aes(x = cnt, y = factor(weathersit))) + 
+  geom_boxplot()
 
 # boxplot showing proportion of registered riders increases as weather worsens
 ggplot(b_propreg, aes(x = weathersit, y = prop_reg)) + 
@@ -143,24 +175,25 @@ prop.test(1875428, 2338173, p = 0.8117)  # Yeah, and? Now what?
 
 
 
-# 2.11.21
 
-ggplot(bikes, aes(x = cnt)) + 
-  geom_freqpoly(mapping = aes(colour = factor(weathersit)))
 
-ggplot(bikes, aes(x = cnt, y = factor(weathersit))) + 
-  geom_boxplot()
 
 
 # temp by rider, faceted by weathersit
 ggplot(bikes, aes(temp, cnt)) + 
-  geom_point() + 
+  geom_point(alpha = 0.1) + 
   facet_wrap(~ weathersit)
 
-# using alpha
+ggplot(b_pivotlong_normalised, aes(temp, numRiders_norm)) + 
+  geom_point(alpha = 0.05) + 
+  facet_grid(ridertype ~ weathersit)
+
+
+# just looking at low temps
 ggplot(b_pivotlong_normalised, aes(temp, numRiders_norm)) + 
   geom_point(alpha = 0.1) + 
   facet_grid(ridertype ~ weathersit) + 
+  labs(title = "Riders at Low Temps") + 
   xlim(0, 0.3)
 # ibid but heatmap
 ggplot(b_pivotlong_normalised, aes(temp, numRiders_norm)) + 
@@ -168,14 +201,41 @@ ggplot(b_pivotlong_normalised, aes(temp, numRiders_norm)) +
   facet_grid(ridertype ~ weathersit)
 
 
+
+
+
+# HAVEN'T GOTTEN THIS BIT TO WORK YET
+# # workday slice from above but normalized?
+# b_pivotlong_normalised %>% group_by(weathersit, workingday, ridertype) %>%
+#   summarise(N = sum(numRiders))
+# 
+# ggplot(b_pivotlong.summary2, aes(recode_factor(workingday, !!!workday_levels), y = N, fill = ridertype)) +
+#   geom_bar(stat = "identity", position = "fill") +
+#   facet_grid(. ~ weathersit) +
+#   labs(title = "How Weather & Workday Affect Ridership",
+#        x = "Workday?", y = "Proportion of Rider Type",
+#        fill = "Rider Type") +
+#   geom_text(aes(label = round(prop_ridergivenweather, 3)), position = "fill", vjust = 1)
+
+
+
+
+
+
+
 # Ok, so what am I seeing:
 # more registered riders than casual in general
-# as weather situation worsens, ridership decreases (reg & cas)
+# as weather situation worsens, overall ridership decreases (reg & cas)
 # as weather situation worsens, proportion of registered increases (casual riders prob don't want to ride in shitty weather)
 # this trend holds true for workdays & non-workdays
   # though proportion of casual riders higher for non-workdays
 
 # at lower temps, fewer casual riders across all weather categories
+# tend to be more casual riders when warmer (t-norm roughly 0.4-0.8)
+# registered riders more spread out, regardless of temperature
+# above 2 hold true for all weather type
 
 
 
+
+detach("package:tidyverse", unload = TRUE)
