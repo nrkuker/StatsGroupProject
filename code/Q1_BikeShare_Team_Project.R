@@ -1,4 +1,4 @@
-BikeShare = read.csv("C:/Users/antho/Documents/OPIM_601-030_Stats_For_Business_Analytics/Team_Project_Bikesharing\\Capital Bike Sharing data by hour.csv")
+BikeShare = read.csv("YOUR .CSV PATH HERE")
 library(dplyr)
 library(lubridate)
 library(ggplot2)
