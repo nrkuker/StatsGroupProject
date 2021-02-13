@@ -1,3 +1,21 @@
+### Question #3
+### output: html_document
+---
+
+# Set up the environment.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r tidy = FALSE}
+# Packages ####
+library(tidyverse)
+library(knitr)
+
+# As needed, set path to folder where data is located.
+opts_knit$set(root.dir = "C:/Users/carte/Desktop/Bike Project")
+```
 B <- bikes %>% 
   group_by(season) %>%                                                # Group by "season"
   mutate(season = recode_factor(season, !!!season_levels)) %>%        # Add "season_levels" column to show Winter:Fall
