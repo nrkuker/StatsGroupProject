@@ -136,9 +136,9 @@ bikes %>% group_by(workingday) %>%
             avg_cas = mean(casual, na.rm = T))
 
 # scatter of registered vs casual, color denotes workingday
-bikes %>% #filter(workingday == 0) %>%
+bikes %>% #filter(workingday == 1) %>%
   ggplot(aes(x = registered, y = casual)) + 
-  geom_point(aes(colour = workingday))
+  geom_point(aes(colour = factor(workingday)))
 # when filter working==F, some points that follow working==T line, investigate?
 
 # crosstab of obs per month, per yr
@@ -284,7 +284,7 @@ bikes %>% #filter(season == 2) %>%
   geom_point(aes(colour = season), alpha = 0.2, position = "jitter")
 
 # scatter of casual vs registered
-bikes %>% #filter(holiday == 1) %>% 
+bikes %>% filter(holiday == 0) %>% 
   mutate(season = recode_factor(season, !!!season_levels),
          workday = recode(workingday, `0` = "not work day", `1` = "work day"),
          holiday = recode(holiday, `0` = "not holiday", `1` = "holiday"),
