@@ -66,6 +66,7 @@ ggplot(Bike_Seasonality, aes(x=Year, y=Daily_Demand, fill=Season)) +
 #Join Month Name to Bike Demand Data Frame
 Bike_Month <- bikes
 Bike_Month <- left_join(Bike_Month, Month, by = "mnth")
+Bike_Month <- left_join(Bike_Month, Years, by = "yr")
 
 #Create Count for Hours in Month
 Bike_Month$hours_cnt <- 1
@@ -73,12 +74,13 @@ str(Bike_Month)
 
 #Calculate Hourly Demand by Month
 Bike_Monthly <- Bike_Month %>%
-  select(Month = month_levels, Year = yr, Date = dteday, Demand = cnt, Count = hours_cnt) %>%
-  group_by(Year, Month) %>%
-  summarise(Hourly_Demand = sum(Demand)/sum(Count)) p
+  select(Month = month_levels, Year = year_levels, Date = dteday, Demand = cnt, Count = hours_cnt) %>%
+  group_by(Month, Year) %>%
+  summarise(Hourly_Demand = sum(Demand)/sum(Count))
+
+Bike_Monthly$Month <- factor(Bike_Monthly$Month, levels = month_levels)
 
 #Create Bar Plot
-ggplot(Bike_Monthly, aes(x=Month, y=Hourly_Demand, fill=Month)) +
-  geom_bar(stat = "identity") +
-  scale_x_discrete(limits = month_levels) +
+ggplot(Bike_Monthly, aes(x=Year, y=Hourly_Demand, fill=Month)) +
+  geom_bar(position = "dodge", stat = "identity") +
   scale_fill_brewer(palette = "Paired")
