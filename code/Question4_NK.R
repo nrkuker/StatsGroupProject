@@ -11,7 +11,7 @@ month_levels <- c(
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 season_levels <- c("Winter", "Spring", "Summer", "Fall")
-weather_levels <- c("Clear", "Cloudy", "Light Precip.", "Heavy Precip.")
+weather_levels <- c("Clear", "Mist", "Light Precip.", "Heavy Precip.")
 workday_levels <- c(`0` = "No", `1` = "Yes")
 
 total_riders <- bikes %>% summarise(totalRiders = sum(cnt)) %>% as.numeric()  # 3,292,679
@@ -122,6 +122,7 @@ ggplot(B, aes(x = weathersit, y = riders, fill = weathersit)) + geom_col() +
        fill = "Weather Type") +
   geom_text(aes(label = riders), vjust = -0.5)
 
+
 # says same as above but in stacked bar chart
 b_pivotlong %>% group_by(weathersit) %>% 
   summarise(N = sum(numRiders)) %>% 
@@ -133,6 +134,34 @@ b_pivotlong %>% group_by(weathersit) %>%
        x = NULL, y = "Proportion", 
        fill = "Weather Type") + 
   geom_text(aes(label = round(prop_weather, 3)), position = "fill", vjust = 1)
+
+# format data for pie chart
+(pie <- b_pivotlong %>% group_by(weathersit) %>% 
+  summarise(N = sum(numRiders)) %>% 
+  mutate(prop_weather = round((N/sum(N))*100, 1)
+         ) %>% 
+  arrange(desc(weathersit)) %>% 
+  mutate(lab.ypos = (cumsum(prop_weather) - 0.5*prop_weather)))
+
+# blank_theme <- theme_minimal()+
+#   theme(
+#     axis.title.x = element_blank(),
+#     axis.title.y = element_blank(),
+#     panel.border = element_blank(),
+#     panel.grid=element_blank(),
+#     axis.ticks = element_blank(),
+#     plot.title=element_text(size=14, face="bold")
+#   )
+
+# make the pie chart
+ggplot(pie, aes(x = "", y = prop_weather, fill = weathersit)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+  geom_text(aes(y = lab.ypos, label = prop_weather), color = "white")+
+  theme_void() + 
+  labs(title = "Proportion of Weather Type Over All Observations",
+       fill = "Weather Type")
+
 
 
 
