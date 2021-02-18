@@ -12,6 +12,7 @@ month_levels <- c(
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 season_levels <- c("Winter", "Spring", "Summer", "Fall")
 weather_levels <- c("Clear", "Cloudy", "Light Precip.", "Heavy Precip.")
+year_levels <- c(2011, 2012)
 
 total_riders <- bikes %>% summarise(totalRiders = sum(cnt)) %>% as.numeric()  # 3,292,679
 total_cas <- bikes %>% summarise(totalCas = sum(casual)) %>% as.numeric()
