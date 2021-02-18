@@ -47,9 +47,19 @@ Hypothesis <- select(bikes, Hour = hr, Weekday = weekday, Holiday = holiday, Wor
 
 Hypothesis <- left_join(Hypothesis, TOD, by = "Hour")
 
-#Create summary of hourly demand by TOD
-Demand_Sum <- Hypothesis %>%
-  group_by(TOD) %>%
-  summarise(Avg_Demand = mean(Total), .groups = 'drop')
+#Create mean of hourly demand
+Avg_Demand <- mean(Hypothesis$Total)
 
-Demand_Sum
+#Create subset of hourly demand for office peak
+Office_Peak <- Hypothesis %>%
+  filter(TOD == "Office Peak")
+
+#Test whether office peak demand is greater than total demand
+t.test(Office_Peak$Total, mu=Avg_Demand, alternative="greater")
+
+#Create subset of hourly demand for night
+Night <- Hypothesis %>%
+  filter(TOD == "Night")
+
+#Test whether night demand is less than total demand
+t.test(Night$Total, mu=Avg_Demand, alternative="less")
