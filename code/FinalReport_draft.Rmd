@@ -1,8 +1,10 @@
 ---
 title: "DEMAND FOR BIKE RENTALS: A report to the management of Capital Bike Share"
-author: "Group 3"
+author: "Group 3: Carter Che, Brendan Griffin, Dani Herzberg, Nicole Kuker, Anthony Long, Carl Thomas"
 date: "2 March 2021"
-output: word_document
+output: 
+  word_document:
+    reference_docx: word_styles_reference.docx
 ---
 
 ```{r setup, include = FALSE}
@@ -22,7 +24,7 @@ year_levels <- c("2011", "2012")
 season_levels <- c("Winter", "Spring", "Summer", "Fall")
 weather_levels <- c("Clear", "Mist", "Light Precip.", "Heavy Precip.")
 ```
-
+\newpage
 # Introduction
 
 To be written at later date
@@ -141,6 +143,7 @@ ggplot(Bike_Monthly, aes(x=Year, y=Hourly_Demand, fill=Month)) +
 # Further Trends: Looking at Weather and Rider Type
 ```{r, include = FALSE}
 # PREP CODE RELATED TO Q4
+
 B <- 
   bikes %>% 
   group_by(weathersit) %>% 
@@ -193,10 +196,18 @@ ggplot(b_pivotlong.summary, aes(weathersit, y = N, fill = ridertype)) +
 # Predicting Total Bike Rental Demand
 
 ### Daily Temperature
+```{r, include = FALSE}
+# PREP CODE RELATED TO Q5
+
+```
 
 Question 5 - Fit a linear model predicting the total bike rental demand from daily temperature. What kind of insights can you generate? (make sure to write the linear model and interpret it in the context of the data)
 
 ### Daily Feeling Temperature
+```{r, include = FALSE}
+# PREP CODE RELATED TO Q6
+
+```
 
 Question 6 - Fit another linear model predicting total daily bike rentals from daily feeling temperature. Write the linear model, interpret the slope, etc.
 
@@ -204,13 +215,17 @@ Question 6 - Fit another linear model predicting total daily bike rentals from d
 
 Part of Question 6: Is the temperature or feeling temperature a better predictor of bike rentals?
 
-# <snappy Question 2 title>
+# Correlation between Rental Demand and Typical Office Hours
+```{r, include = FALSE}
+# PREP CODE RELATED TO Q2
+
+```
 
 ### Is there a "rush hour" for bike rentals?
 
 Hypothesis: There must be high demand during office timings. Early morning and late evening can have different trends (cyclist) and low demand from 10:00pm to 4:00am. Do you agree?
 
-### Weekdays vs. Weekends
+### Workdays vs. Weekends/Holidays
 
 Hypothesis: Registered users demand more bike on weekdays compared to the weekend or holiday. Do you agree?
 
@@ -218,4 +233,5 @@ Hypothesis: Registered users demand more bike on weekdays compared to the weeken
 
 Question 7 - What is your overall recommendation about the demand for bike rentals for the Capital Bike Share management? Share your insights with the company based on your analysis.
 
+\newpage
 # Appendix
