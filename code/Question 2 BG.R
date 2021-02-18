@@ -54,12 +54,16 @@ Avg_Demand <- mean(Hypothesis$Total)
 Office_Peak <- Hypothesis %>%
   filter(TOD == "Office Peak")
 
+#Null hypothesis: Office Peak Demand >= Total Demand
+
 #Test whether office peak demand is greater than total demand
 t.test(Office_Peak$Total, mu=Avg_Demand, alternative="greater")
 
 #Create subset of hourly demand for night
 Night <- Hypothesis %>%
   filter(TOD == "Night")
+
+#Null hypothesis: Night Demand <= Total Demand
 
 #Test whether night demand is less than total demand
 t.test(Night$Total, mu=Avg_Demand, alternative="less")
