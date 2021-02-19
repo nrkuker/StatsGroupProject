@@ -76,13 +76,13 @@ Night <- Hypothesis %>%
 t.test(Night$Total, mu=Avg_DayDemand, alternative="greater")
 
 #Conclusion: accept the null as p-value is greater than alpha 0.05
-
+sd(Office_Peak$Total)
 # Alternative Approach:
 #Null hypothesis: Office Peak Demand >= Total Demand
 xbar=309.4155             #sample mean
 mu0=259.8624             #hypothesized value
 sd(Day_Demand$Total)    # population SD
-sigma=180.3785             #population standard deviation
+sigma=202.5208             #population standard deviation
 n=5824                  #sample size
 
 t= (xbar-mu0)/(sigma/sqrt(n))
@@ -97,13 +97,13 @@ pval                  #lower tail p value (pt gives the probability distribution
 xbar=50.2096            #sample mean
 mu0=189.4631           #hypothesized value
 sd(Day_Demand$Total)    # population SD
-sigma=180.3785             #population standard deviation
+sigma=58.44815             #population standard deviation
 n=5015                  #sample size
 
 t= (xbar-mu0)/(sigma/sqrt(n))
 t                     #test statistic
 
-pval = pt(t, df=5014, lower.tail=TRUE)
+pval = pt(t, df=5014, lower.tail=FALSE)
 pval                  #lower tail p value (pt gives the probability distribution function)
 
-#Conclusion = accept the null as p-
+#Conclusion = accept the null as p-value is greater than alpha 0.05
