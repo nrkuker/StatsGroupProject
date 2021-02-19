@@ -1,25 +1,25 @@
-﻿Hour,TOD
-0,Night
-1,Night
-2,Night
-3,Night
-4,Night
-5,Off Peak
-6,Off Peak
-7,Office Peak
-8,Office Peak
-9,Office Peak
-10,Office Peak
-11,Off Peak
-12,Off Peak
-13,Off Peak
-14,Off Peak
-15,Off Peak
-16,Office Peak
-17,Office Peak
-18,Office Peak
-19,Office Peak
-20,Off Peak
-21,Off Peak
-22,Night
-23,Night
+﻿Hour,TOD,Window
+0,Night,Night
+1,Night,Night
+2,Night,Night
+3,Night,Night
+4,Night,Night
+5,Off Peak,Day 
+6,Off Peak,Day
+7,Office Peak,Day
+8,Office Peak,Day
+9,Office Peak,Day
+10,Office Peak,Day
+11,Off Peak,Day
+12,Off Peak,Day
+13,Off Peak,Day
+14,Off Peak,Day
+15,Off Peak,Day
+16,Office Peak,Day
+17,Office Peak,Day
+18,Office Peak,Day
+19,Office Peak,Day
+20,Off Peak,Day
+21,Off Peak,Day
+22,Night,Night
+23,Night,Night
