@@ -47,8 +47,13 @@ Hypothesis <- select(bikes, Hour = hr, Weekday = weekday, Holiday = holiday, Wor
 
 Hypothesis <- left_join(Hypothesis, TOD, by = "Hour")
 
-#Create mean of hourly demand
-Avg_Demand <- mean(Hypothesis$Total)
+
+#Create subset of hourly demand for day-time
+Day_Demand <- Hypothesis %>%
+  filter(Window == "Day")
+
+#Create mean of hourly demand for day
+Avg_DayDemand <- mean(Day_Demand$Total)
 
 #Create subset of hourly demand for office peak
 Office_Peak <- Hypothesis %>%
@@ -57,7 +62,9 @@ Office_Peak <- Hypothesis %>%
 #Null hypothesis: Office Peak Demand >= Total Demand
 
 #Test whether office peak demand is greater than total demand
-t.test(Office_Peak$Total, mu=Avg_Demand, alternative="greater")
+t.test(Office_Peak$Total, mu=Avg_DayDemand, alternative="less")
+
+#Conclusion: accept the null as p-value is greater than alpha 0.05
 
 #Create subset of hourly demand for night
 Night <- Hypothesis %>%
@@ -66,4 +73,37 @@ Night <- Hypothesis %>%
 #Null hypothesis: Night Demand <= Total Demand
 
 #Test whether night demand is less than total demand
-t.test(Night$Total, mu=Avg_Demand, alternative="less")
+t.test(Night$Total, mu=Avg_DayDemand, alternative="greater")
+
+#Conclusion: accept the null as p-value is greater than alpha 0.05
+
+# Alternative Approach:
+#Null hypothesis: Office Peak Demand >= Total Demand
+xbar=309.4155             #sample mean
+mu0=259.8624             #hypothesized value
+sd(Day_Demand$Total)    # population SD
+sigma=180.3785             #population standard deviation
+n=5824                  #sample size
+
+t= (xbar-mu0)/(sigma/sqrt(n))
+t                     #test statistic
+
+pval = pt(t, df=5823, lower.tail=TRUE)
+pval                  #lower tail p value (pt gives the probability distribution function)
+
+#Conclusion: accept the null as p-value is greater than alpha 0.05
+
+#Null hypothesis: Night Demand <= Total Demand
+xbar=50.2096            #sample mean
+mu0=189.4631           #hypothesized value
+sd(Day_Demand$Total)    # population SD
+sigma=180.3785             #population standard deviation
+n=5015                  #sample size
+
+t= (xbar-mu0)/(sigma/sqrt(n))
+t                     #test statistic
+
+pval = pt(t, df=5014, lower.tail=TRUE)
+pval                  #lower tail p value (pt gives the probability distribution function)
+
+#Conclusion = accept the null as p-
