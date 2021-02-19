@@ -49,7 +49,7 @@ Predict <- lm(cnt ~ temp, data = bikes)
 summary(Predict)
 coefficients(Predict)
 
-#demand = -0.0356 + (9.2999 * temp)
+#demand = -0.0356 + (381.295 * temp)
 #low r squared
 #wide range of demand at every temp
 #statistically significant (p value <= alpha of 0.05)
@@ -71,7 +71,7 @@ Predict_A <- lm(cnt ~ atemp, data = bikes)
 summary(Predict_A)
 coefficients(Predict_A)
 
-#demand = -11.88 + (8.46 * atemp)
+#demand = -11.88 + (423.18 * atemp)
 #slightly lower r squared
 #wide range of demand at each feels like temp and less steep slope so each degree
 #increase in feels like temp is less impactful on demand than actual temp
