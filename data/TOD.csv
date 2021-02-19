@@ -4,22 +4,22 @@
 2,Night,Night
 3,Night,Night
 4,Night,Night
-5,Off Peak,Day 
-6,Off Peak,Day
-7,Office Peak,Day
-8,Office Peak,Day
-9,Office Peak,Day
-10,Office Peak,Day
-11,Off Peak,Day
-12,Off Peak,Day
-13,Off Peak,Day
-14,Off Peak,Day
-15,Off Peak,Day
-16,Office Peak,Day
-17,Office Peak,Day
-18,Office Peak,Day
-19,Office Peak,Day
-20,Off Peak,Day
-21,Off Peak,Day
+5,Trough,Day
+6,Trough,Day
+7,Trough,Day
+8,Office,Day
+9,Office,Day
+10,Office,Day
+11,Office,Day
+12,Office,Day
+13,Office,Day
+14,Office,Day
+15,Office,Day
+16,Office,Day
+17,Office,Day
+18,Office,Day
+19,Trough,Day
+20,Trough,Day
+21,Trough,Day
 22,Night,Night
 23,Night,Night

@@ -47,7 +47,6 @@ Hypothesis <- select(bikes, Hour = hr, Weekday = weekday, Holiday = holiday, Wor
 
 Hypothesis <- left_join(Hypothesis, TOD, by = "Hour")
 
-
 #Create subset of hourly demand for day-time
 Day_Demand <- Hypothesis %>%
   filter(Window == "Day")
@@ -56,13 +55,13 @@ Day_Demand <- Hypothesis %>%
 Avg_DayDemand <- mean(Day_Demand$Total)
 
 #Create subset of hourly demand for office peak
-Office_Peak <- Hypothesis %>%
-  filter(TOD == "Office Peak")
+Office <- Hypothesis %>%
+  filter(TOD == "Office")
 
 #Null hypothesis: Office Peak Demand >= Total Demand
 
 #Test whether office peak demand is greater than total demand
-t.test(Office_Peak$Total, mu=Avg_DayDemand, alternative="less")
+t.test(Office$Total, mu=Avg_DayDemand, alternative="less")
 
 #Conclusion: accept the null as p-value is greater than alpha 0.05
 
@@ -76,8 +75,8 @@ Night <- Hypothesis %>%
 t.test(Night$Total, mu=Avg_DayDemand, alternative="greater")
 
 #Conclusion: accept the null as p-value is greater than alpha 0.05
-sd(Office_Peak$Total)
-# Alternative Approach:
+
+# Alternative Approach: #####
 #Null hypothesis: Office Peak Demand >= Total Demand
 xbar=309.4155             #sample mean
 mu0=259.8624             #hypothesized value
@@ -107,3 +106,33 @@ pval = pt(t, df=5014, lower.tail=FALSE)
 pval                  #lower tail p value (pt gives the probability distribution function)
 
 #Conclusion = accept the null as p-value is greater than alpha 0.05
+
+# Trough vs Peak #####
+
+#Create subset of hourly demand for day trough
+Trough <- Hypothesis %>%
+  filter(TOD == "Trough")
+
+Trough_Demand <- mean(Trough$Total)
+
+#Null hypothesis: Office Peak Demand >= Trough Demand
+
+#Test whether office peak demand is greater than trough demand
+t.test(Office$Total, mu=Trough_Demand, alternative="less")
+
+# Two population hypothesis test #####
+
+# Null: Difference between two means is equal
+
+t.test(formula = Total ~ TOD, data = Hypothesis, subset = TOD %in% c("Trough", "Office"))
+
+#Conclusion = reject the null as p
+
+
+Hypothesis_2 <- Hypothesis %>%
+  group_by(Hour) %>%
+  summarise(Avg_Dmd = mean(Total))
+
+ggplot(Hypothesis_2, aes(x = Hour,
+                         y = Avg_Dmd)) +
+  geom_bar(stat='identity')
