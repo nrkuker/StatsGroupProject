@@ -1,0 +1,222 @@
+---
+title: "DEMAND FOR BIKE RENTALS: A report to the management of Capital Bike Share"
+author: "Group 3: Carter Che, Brendan Griffin, Dani Herzberg, Nicole Kuker, Anthony Long, Carl Thomas"
+date: "2 March 2021"
+output: 
+  word_document:
+    reference_docx: word_styles_reference.docx
+---
+
+```{r setup, include = FALSE}
+# packages
+library(tidyverse)
+library(lubridate)
+# Rmd options
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+# load data
+library(readxl)
+Capital_Bike_Sharing_data_by_hour <- read_excel("Desktop/Georgetown/Stats for B.A./Capital Bike Sharing data by hour.xlsx")
+bikes <- Capital_Bike_Sharing_data_by_hour
+head(bikes)
+# global variables
+month_levels <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+year_levels <- c("2011", "2012")
+season_levels <- c("Winter", "Spring", "Summer", "Fall")
+weather_levels <- c("Clear", "Mist", "Light Precip.", "Heavy Precip.")
+```
+\newpage
+# Introduction
+
+To be written at later date
+
+# Overall Trends in Bike Rental Demand
+```{r, include = FALSE}
+# PREP CODE RELATED TO Q1
+# Create for loops for 2011 and 2012
+BikeShare_Unique <- unique(bikes$mnth)
+BikeShare_Length <- length(unique(bikes$mnth))
+  # empty matrix for storage
+Month_Store_2011 = matrix(NA, BikeShare_Length , 2)
+Month_Table_2011 <- bikes[which(year(bikes$dteday) == 2011) ,]
+  # loop for 2011
+count = 0
+for(ii in BikeShare_Unique){
+  count = count + 1
+  Month_Store_2011[count, 1] = ii
+  X_table <-  Month_Table_2011[which(Month_Table_2011$mnth == ii), ]
+  Month_Store_2011[count, 2] = sum(X_table$cnt)
+  as.data.frame(Month_Store_2011)
+}
+  # empty matrix for storage
+Month_Store_2012 = matrix(NA, BikeShare_Length , 2)  
+Month_Table_2012 <- bikes[which(year(bikes$dteday) == 2012) ,]
+  #loop for 2012 
+count = 0
+for(jj in BikeShare_Unique){
+  count = count + 1
+  Month_Store_2012[count, 1] = jj+12
+  Y_table <-  Month_Table_2012[which(Month_Table_2012$mnth == jj), ]
+  Month_Store_2012[count, 2] = sum(Y_table$cnt)
+  as.data.frame(Month_Store_2012)
+}
+Count_per_Month <- data.frame(rbind(Month_Store_2011, Month_Store_2012))
+names(Count_per_Month)[1] <- "Month"
+names(Count_per_Month)[2] <-  "Riders"
+```
+
+Question 1 - Anthony & Carl
+General trend - positive over the years
+
+```{r}
+ggplot(Count_per_Month, aes(x = Month, y = Riders)) + geom_point(alpha = 0.6) +
+  stat_smooth (method = "lm", color = "red", se = FALSE)
+```
+
+# Trends by Season
+```{r, include = FALSE}
+# PREP CODE RELATED TO Q3
+Seasons <- data.frame(season = c(1,2,3,4), season_levels)
+Month <- data.frame(mnth = c(1:12), month_levels)
+Years <- data.frame(yr = c(0,1), year_levels)
+#Join Season Name to Bike Demand Data Frame
+Bike_Season <- bikes
+Bike_Season <- left_join(Bike_Season, Seasons, by = "season")
+Bike_Season <- left_join(Bike_Season, Years, by = "yr")
+#Create Count for Days in Season
+Bike_Season$days_cnt <- 1
+str(Bike_Season)
+#Calculate Daily Demand by Season
+Bike_Seasonality <- Bike_Season %>%
+  select(Season = season_levels, Year = year_levels, Date = dteday, Demand = cnt, Count = days_cnt) %>%
+  group_by(Season, Year) %>%
+  summarise(Daily_Demand = sum(Demand)/sum(Count))
+Bike_Seasonality$Season <- factor(Bike_Seasonality$Season, levels = season_levels)
+#---
+#Join Month Name to Bike Demand Data Frame
+Bike_Month <- bikes
+Bike_Month <- left_join(Bike_Month, Month, by = "mnth")
+Bike_Month <- left_join(Bike_Month, Years, by = "yr")
+#Create Count for Hours in Month
+Bike_Month$hours_cnt <- 1
+str(Bike_Month)
+#Calculate Hourly Demand by Month
+Bike_Monthly <- Bike_Month %>%
+  select(Month = month_levels, Year = year_levels, Date = dteday, Demand = cnt, Count = hours_cnt) %>%
+  group_by(Month, Year) %>%
+  summarise(Hourly_Demand = sum(Demand)/sum(Count), .groups = 'drop') 
+Bike_Monthly$Month <- factor(Bike_Monthly$Month, levels = month_levels)
+```
+
+Looking at the overall seasonal impact on hourly demand, it is clear that the Winter is a time of depressed demand likely related to the cold temperatures, which will be addressed later. The Spring and Fall are quite similar in demand terms only trailing summer by a small margin on an hourly basis. The seasonal trends in hourly demand are consistent between the two years of data, which indicates it is a continuing trend.
+
+```{r}
+ggplot(Bike_Seasonality, aes(x=Year, y=Daily_Demand, fill=Season)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_brewer(palette = "Paired")
+```
+
+When the seasons are split into the individual months, there is a more gradual transition into and out of the Winter depressed demand period. The overall trend of seasonality affecting demand holds and January’s demand being 40% of that in June, the peak month. Once again the monthly trend holds consistent between the two years in the dataset. 
+
+```{r}
+ggplot(Bike_Monthly, aes(x=Year, y=Hourly_Demand, fill=Month)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_brewer(palette = "Paired")
+```
+
+# Further Trends: Looking at Weather and Rider Type
+```{r, include = FALSE}
+# PREP CODE RELATED TO Q4
+B <- 
+  bikes %>% 
+  group_by(weathersit) %>% 
+  mutate(weathersit = recode_factor(weathersit, !!!weather_levels)) %>%
+  summarise(riders = sum(cnt), 
+            reg = sum(registered), 
+            cas = sum(casual),
+            prop_reg = sum(registered) / riders)
+b_pivotlong <- 
+  bikes %>% 
+  select(dteday, hr, weathersit, temp, workingday, casual:cnt) %>%
+  pivot_longer(cols = c("casual", "registered"), names_to = "ridertype", values_to = "numRiders") %>%
+  mutate(weathersit = recode_factor(weathersit, !!!weather_levels)) %>%
+  group_by(weathersit)
+b_pivotlong.summary <- 
+  b_pivotlong %>% 
+  group_by(weathersit, ridertype) %>% 
+  summarise(N = sum(numRiders)) %>% 
+  mutate(prop_ridergivenweather = N/sum(N))
+b_pivotlong.summary <- 
+  b_pivotlong.summary %>% 
+  group_by(ridertype) %>% 
+  mutate(prop_weathergivenrider = N/sum(N))
+```
+
+Hourly weather conditions were documented within the dataset and categorized as Clear, Mist, Light Precipitation, and Heavy Precipitation. As weather conditions worsen, there is a steep decrease in overall ridership. Though there are more registered riders than casual riders, this decrease in ridership holds true when looking at both subsets of rider type.
+
+```{r}
+# Total Riders by Weather Type
+ggplot(B, aes(x = weathersit, y = riders, fill = weathersit)) + geom_col() + 
+  labs(title = "Total Riders by Weather Type", 
+       x = "Weather Type", y = "Total Riders",
+       fill = "Weather Type") +
+  geom_text(aes(label = riders), vjust = -0.5)
+```
+
+As weather conditions worsen, casual riders make up a decreasing proportion of total ridership. This suggests that casual riders may be more influenced by the weather, and are more likely to choose other modes of transportation when weather conditions are unpleasant or uncomfortable.
+
+```{r}
+ggplot(b_pivotlong.summary, aes(weathersit, y = N, fill = ridertype)) + 
+  geom_bar(stat = "identity", position = "fill") + 
+  labs(title = "How Weather Affects Ridership", 
+       x = "Type of Weather", y = "Proportion of Rider Type",
+       fill = "Rider Type") + 
+  geom_text(aes(label = round(prop_ridergivenweather, 3)), position = "fill", vjust = 1)
+```
+
+# Predicting Total Bike Rental Demand
+
+### Daily Temperature
+```{r, include = FALSE}
+# PREP CODE RELATED TO Q5
+names(bikes)
+dailyTempModel <- lm(cnt~ temp, bikes)
+summary(dailyTempModel)
+
+```
+
+Question 5 - Fit a linear model predicting the total bike rental demand from daily temperature. What kind of insights can you generate? (make sure to write the linear model and interpret it in the context of the data)
+
+### Daily Feeling Temperature
+```{r, include = FALSE}
+# PREP CODE RELATED TO Q5
+dailyTempModel <- lm(cnt~ temp, bikes)
+summary(dailyTempModel)
+# 16.38% of the variation in the total bike rental demand can be attributed to the daily temperature.
+# This is a low R-squared and we should consider adding additional varaibles to our model.
+# The temperature is a significant variable because 2e-16 is less than alpha (0.05).
+# This means that we can reject the null hypothesis that the daily temperature has no effect on total bike rental demand.
+# For every 1 degreee increase in the temperature, bike rental demand increases by 381.29
+
+```
+
+Question 6 - Fit another linear model predicting total daily bike rentals from daily feeling temperature. Write the linear model, interpret the slope, etc.
+
+### Which is the better predictor?
+
+Part of Question 6: Is the temperature or feeling temperature a better predictor of bike rentals?
+
+# Correlation between Rental Demand and Typical Office Hours
+```{r, include = FALSE}
+# PREP CODE RELATED TO Q6
+dailyATempModel <- lm(cnt~ atemp, bikes)
+summary(dailyATempModel)
+# 16.07% of the variation in the total bike rental demand can be attributed to the daily temperature feeling.
+# This is a low R-squared and we should consider adding additional varaibles to our model.
+# The temperature feeling is a significant variable because 2e-16 is less than alpha (0.05).
+# This means that we can reject the null hypothesis that the daily temperature feeling has no effect on total bike rental demand.
+# For every 1 degreee increase in the temperature, bike rental demand increases by 423.18
+# Having negative intercept does not seem to make sense for this, as you can not rent negative bikes
+
+
+```
