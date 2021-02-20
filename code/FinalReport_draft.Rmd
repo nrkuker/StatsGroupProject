@@ -20,7 +20,7 @@ bikes <- read.csv("../data/Capital Bike Sharing data by hour.csv")
 # global variables
 month_levels <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun",
                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-year_levels <- c("2011", "2012")
+year_levels <- c(2011, 2012)
 season_levels <- c("Winter", "Spring", "Summer", "Fall")
 weather_levels <- c("Clear", "Mist", "Light Precip.", "Heavy Precip.")
 ```
