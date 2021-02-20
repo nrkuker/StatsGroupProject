@@ -194,26 +194,69 @@ ggplot(b_pivotlong.summary, aes(weathersit, y = N, fill = ridertype)) +
 ```
 
 # Predicting Total Bike Rental Demand
+Question 5 - Fit a linear model predicting the total bike rental demand from daily temperature. What kind of insights can you generate? (make sure to write the linear model and interpret it in the context of the data)
 
 ### Daily Temperature
 ```{r, include = FALSE}
 # PREP CODE RELATED TO Q5
+Temp_Plot <- bikes %>%
+  ggplot(aes(x = temp,
+             y = cnt)) + 
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE, color="grey60") 
 
+Temp_Plot
+
+Predict <- lm(cnt ~ temp, data = bikes)
+summary(Predict)
+coefficients(Predict)
 ```
+The equation of this linear model is: 
+    Demand = -0.036 + (381.30 * Temp)
+    (where temperature is the normalized temperature in the data set)
 
-Question 5 - Fit a linear model predicting the total bike rental demand from daily temperature. What kind of insights can you generate? (make sure to write the linear model and interpret it in the context of the data)
+The linear model is statistically significant given the p-value is below the alpha of 0.05 (it is also below an alpha of 0.01). The coefficient t-value is a measure of how many standard deviations our coefficient estimate is far away from 0. In the temperature linear model, the t-statistic value is relatively far away from zero and is large relative to the standard error, which could indicate a relationship exists.
+
+However, the R squared value is only 0.1638, which indicates that the linear model is not a strong fit to the data and that the relationship between temperature and demand is not particularly strong. This R squared means roughly 16% of the variance found in overall demand can be explained by the actual temperature.
+
+The scatterplot indicates that there is a wide range of demand at almost all temperatures. The demand range only tightens at the extremes of the temperature scale. 
 
 ### Daily Feeling Temperature
 ```{r, include = FALSE}
 # PREP CODE RELATED TO Q6
+Atemp_Plot <- bikes %>%
+  ggplot(aes(x = atemp,
+             y = cnt)) + 
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE, color="grey60") 
 
+Atemp_Plot
+
+Predict_A <- lm(cnt ~ atemp, data = bikes)
+summary(Predict_A)
+coefficients(Predict_A)
 ```
 
 Question 6 - Fit another linear model predicting total daily bike rentals from daily feeling temperature. Write the linear model, interpret the slope, etc.
 
+The equation of this linear model is: 
+    Demand = -11.88 + (423.18 * Feels Like Temp)
+    (where feels like temperature is the normalized feels like temperature in the data set)
+
+The linear model is statistically significant given the p-value is below the alpha of 0.05 (it is also below an alpha of 0.01). The p-value tests the null hypothesis that there is no correlation between the feels like temperature and overall demand and we can reject the null hypothesis.
+
+However, the R squared value is only 0.1607, which indicates that the linear model is not a strong fit to the data and that the relationship between the feels like temperature and demand is not particularly strong. Only 16.1% of the variance in the overall demand can be explained by the feels like temperature. 
+
+The slope of the linear model is steeper than in the actual temperature model indicating a one degree change in the feels like temperature has a bigger impact on demand than a one degree change in the actual temperature. 
+
+The scatterplot indicates that there is a wide range of demand at almost all feels like temperatures. The demand range only tightens at the extremes of the temperature scale. 
+
+
 ### Which is the better predictor?
 
 Part of Question 6: Is the temperature or feeling temperature a better predictor of bike rentals?
+
+The actual temperature is a better predictor of overall demand for bike rentals. The higher R squared and lower standard error in the temperature linear model indicates a marginally better fit than the feels like temperature model. That being said, the R squared is low for both models and the standard error high. Neither model is a particularly good fit for the data and does not explain a large portion in the demand for bike rentals.
 
 # Correlation between Rental Demand and Typical Office Hours
 ```{r, include = FALSE}
