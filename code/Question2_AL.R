@@ -1,4 +1,4 @@
-BikeShare = read.csv("C:/Users/antho/Documents/OPIM_601-030_Stats_For_Business_Analytics/Team_Project_Bikesharing\\Capital Bike Sharing data by hour.csv")
+BikeShare = read.csv("YourFileNameHere.csv")
 
 ### 2b)
 
@@ -22,7 +22,7 @@ Registered_Users<- BikeShare %>%
 # Generate sample of Registered Users (May not be needed)
 
 Registered_Users %>%
-  sample_n(100)
+  sample_n(100) # Yep, didn't really need this...
 
 # Change "0" in weekday to 7, for easier filtering
 Registered_Users$weekday[Registered_Users$weekday == 0] <- 7
@@ -89,6 +89,8 @@ t.test(smple_RUWday$instant, smple_RUH$instant, alternative = "less")
 # Fail to Reject NULL
 
 # Should this be re-done with log?
+# Is the sampling method appropriate?
+
 
 
 
