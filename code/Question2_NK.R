@@ -54,11 +54,11 @@ Hypothesis <- select(bikes, Hour = hr, Weekday = weekday, Holiday = holiday, Wor
 Hypothesis <- left_join(Hypothesis, TOD, by = "Hour")
 
 #Create subset of hourly demand for day-time
-Day_Demand <- Hypothesis %>%
+Day <- Hypothesis %>%
   filter(Window == "Day")
 
 #Create mean of hourly demand for day
-Avg_DayDemand <- mean(Day_Demand$Total)
+Avg_DayDemand <- mean(Day$Total)
 
 #Create subset of hourly demand for office peak
 Office <- Hypothesis %>%
@@ -101,7 +101,7 @@ t.test(Office$Total, mu=Avg_DayDemand, alternative="two.sided")
 # H0: avg demand during daylight == avg demand over entire day
 # Ha: avg demand during daylight != 
 
-t.test(Day_Demand$Total, 
+t.test(Day$Total, 
        mu = mean(Hypothesis$Total, na.rm = T), 
       alternative = "two.sided")
 # reject null
@@ -110,7 +110,7 @@ t.test(Day_Demand$Total,
 # Ha: avg demand during office hours != 
 
 t.test(Office$Total, 
-       mu = mean(Day_Demand$Total, na.rm = T), 
+       mu = mean(Day$Total, na.rm = T), 
        alternative = "two.sided")
 # reject null, at alpha 0.05 and 0.01
 # 95% CI for avg demand during office hours is [283.0607, 291.2821], x-bar = 287.1714
@@ -146,7 +146,6 @@ t.test(Night$Total,
        mu = mean(Hypothesis$Total, na.rm = T), 
        alternative = "two.sided")
 # absolutely reject null
-
 
 
 
@@ -221,8 +220,8 @@ t.test(Trough$Total,
 # Ha: avg demand during trough >
 
 t.test(Trough$Total, 
-       mu = mean(Day_Demand$Total, na.rm = T), 
-       alternative = "greater")
+       mu = mean(Day$Total, na.rm = T), 
+       alternative = "two.sided")
 # accept null
 
 
@@ -255,18 +254,68 @@ t.test(Commute$Total,
        alternative = "two.sided")
 # reject null
 
-
 t.test(Commute$Total, 
        mu = mean(Noncommute$Total, na.rm = T), 
        alternative = "greater")
 # reject null
 
 
+# H0: avg demand during noncommute office hours == avg demand during daylight
+# Ha: avg demand during noncommute office hours !=
+t.test(Noncommute$Total,
+       mu = mean(Day$Total, na.rm = T),
+       alternative = "two.sided")
+# reject null
+
+t.test(Noncommute$Total,
+       mu = mean(Day$Total, na.rm = T),
+       alternative = "less")
+# reject null
+
+
+# H0: avg demand during noncommute office hours == avg demand during trough
+# Ha: avg demand during noncommute office hours !=
+t.test(Noncommute$Total,
+       mu = mean(Trough$Total, na.rm = T),
+       alternative = "two.sided")
+# reject null
 
 
 
-
-
+# For completeness' sake
+t.test(Trough$Total,
+       mu = mean(Office$Total, na.rm = T),
+       alternative = "two.sided")
+t.test(Night$Total,
+       mu = mean(Office$Total, na.rm = T),
+       alternative = "two.sided")
+t.test(Night$Total,
+       mu = mean(Day$Total, na.rm = T),
+       alternative = "two.sided")
+t.test(Commute$Total,
+       mu = mean(Day$Total, na.rm = T),
+       alternative = "two.sided")
+t.test(Commute$Total,
+       mu = mean(Trough$Total, na.rm = T),
+       alternative = "two.sided")
+t.test(Commute$Total,
+       mu = mean(Night$Total, na.rm = T),
+       alternative = "two.sided")
+t.test(Noncommute$Total,
+       mu = mean(Office$Total, na.rm = T),
+       alternative = "two.sided")
+t.test(Noncommute$Total,
+       mu = mean(Night$Total, na.rm = T),
+       alternative = "two.sided")
+t.test(Office$Total,
+       mu = mean(Hypothesis$Total, na.rm = T),
+       alternative = "two.sided")
+t.test(Commute$Total,
+       mu = mean(Hypothesis$Total, na.rm = T),
+       alternative = "two.sided")
+t.test(Noncommute$Total,
+       mu = mean(Hypothesis$Total, na.rm = T),
+       alternative = "two.sided")
 
 
 
@@ -287,3 +336,103 @@ Hypothesis_2 <- Hypothesis %>%
 ggplot(Hypothesis_2, aes(x = Hour,
                          y = Avg_Dmd)) +
   geom_bar(stat='identity')
+
+
+
+# NK edits: Question 2b
+
+Working <- Hypothesis %>% 
+  filter(Workingday == 1)
+
+Nonwork <- Hypothesis %>% 
+  filter(Workingday == 0)
+
+
+
+# H0: avg demand during workdays == avg demand during nonworkdays (i.e. weekends & holidays)
+# Ha: avg demand during workdays !=
+t.test(Working$Total, 
+       mu = mean(Nonwork$Total, na.rm = T), 
+       alternative = "two.sided")
+# reject null
+
+t.test(Working$Total, 
+       mu = mean(Nonwork$Total, na.rm = T), 
+       alternative = "greater")
+# reject null
+
+# H0: avg registered demand during workdays == avg registered demand during nonworkdays (i.e. weekends & holidays)
+# Ha: avg registered demand during workdays !=
+t.test(Working$Registered, 
+       mu = mean(Nonwork$Registered, na.rm = T), 
+       alternative = "two.sided")
+# reject null
+
+# H0: avg casual demand during workdays == avg casual demand during nonworkdays (i.e. weekends & holidays)
+# Ha: avg casual demand during workdays !=
+t.test(Working$Casual, 
+       mu = mean(Nonwork$Casual, na.rm = T), 
+       alternative = "two.sided")
+# reject null
+
+# examining registered & casual for different TOD
+
+# commute times for reg&cas on work vs nonwork
+t.test(Working$Registered[Working$Commute == 1], 
+       mu = mean(Nonwork$Registered[Nonwork$Commute == 1]), 
+       alternative = "two.sided")
+t.test(Working$Casual[Working$Commute == 1], 
+       mu = mean(Nonwork$Casual[Nonwork$Commute == 1]), 
+       alternative = "two.sided")
+
+# office hours for reg&cas on work vs nonwork
+t.test(Working$Registered[Working$TOD == "Office"], 
+       mu = mean(Nonwork$Registered[Nonwork$TOD == "Office"]), 
+       alternative = "two.sided")
+t.test(Working$Casual[Working$TOD == "Office"], 
+       mu = mean(Nonwork$Casual[Nonwork$TOD == "Office"]), 
+       alternative = "two.sided")
+
+# daylight hours for reg&cas on work vs nonwork
+t.test(Working$Registered[Working$Window == "Day"], 
+       mu = mean(Nonwork$Registered[Nonwork$Window == "Day"]), 
+       alternative = "two.sided")
+t.test(Working$Casual[Working$Window == "Day"], 
+       mu = mean(Nonwork$Casual[Nonwork$Window == "Day"]), 
+       alternative = "two.sided")
+
+# noncommute hours for reg&cas on work vs nonwork
+t.test(Working$Registered[Working$Commute == 0], 
+       mu = mean(Nonwork$Registered[Nonwork$Commute == 0]), 
+       alternative = "two.sided")
+t.test(Working$Casual[Working$Commute == 0], 
+       mu = mean(Nonwork$Casual[Nonwork$Commute == 0]), 
+       alternative = "two.sided")
+
+# trough hours for reg&cas on work vs nonwork
+t.test(Working$Registered[Working$TOD == "Trough"], 
+       mu = mean(Nonwork$Registered[Nonwork$TOD == "Trough"]), 
+       alternative = "two.sided")
+t.test(Working$Casual[Working$TOD == "Trough"], 
+       mu = mean(Nonwork$Casual[Nonwork$TOD == "Trough"]), 
+       alternative = "two.sided")
+
+# nighttime hours for reg&cas on work vs nonwork
+t.test(Working$Registered[Working$Window == "Night"], 
+       mu = mean(Nonwork$Registered[Nonwork$Window == "Night"]), 
+       alternative = "two.sided")
+t.test(Working$Casual[Working$Window == "Night"], 
+       mu = mean(Nonwork$Casual[Nonwork$Window == "Night"]), 
+       alternative = "two.sided")
+
+
+# THOUGHTS ####
+# Demand differs significantly between workdays & nonworkdays
+  # Registered demand is significantly more on workdays
+  # Casual demand is significantly less on workdays
+  # This trend holds except for looking at "noncommute" hours & nighttime hours:
+    # Registered demand is significantly less during noncommuting hours on workdays
+    # Registered demand is significantly less during nighttime on workdays
+
+# Hierarchy of mean demand:
+  # Commuting times > Office hours > Daytime hours > Non-commuting office hours > Avg of entire dataset > Trough window > Nighttime hours
