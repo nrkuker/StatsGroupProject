@@ -1,15 +1,16 @@
-BikeShare = read.csv("YourFileNameHere.csv")
+BikeShare = read.csv("C:/Users/antho/Documents/OPIM_601-030_Stats_For_Business_Analytics/Team_Project_Bikesharing\\Capital Bike Sharing data by hour.csv")
 
 ### 2b)
 
+#2b.) b. Registered users demand more bike on weekdays compared to the weekend or holiday. Do you agree?
+
 # Ho: Registered users demand more bikes on weekdays than weekends or holidays
-# Ha: Registeres users demand less bikes on weekdays than weekends or holidays
+# Ha: Registered users demand less bikes on weekdays than weekends or holidays
 
 # Install necessary packages
 
 library(tidyverse)
 library(grid)
-install.packages("gridExtra")
 library(gridExtra)
 library(lattice)
 library(dplyr)
@@ -22,7 +23,7 @@ Registered_Users<- BikeShare %>%
 # Generate sample of Registered Users (May not be needed)
 
 Registered_Users %>%
-  sample_n(100) # Yep, didn't really need this...
+  sample_n(100)
 
 # Change "0" in weekday to 7, for easier filtering
 Registered_Users$weekday[Registered_Users$weekday == 0] <- 7
@@ -73,24 +74,48 @@ p3 <- ggplot(smple_RUH, aes(instant)) +
 grid.arrange(p1, p2, p3, ncol = 3)
 
 
-#Test whether weekday demand is less than weekend demand
-t.test(smple_RUWday$instant, smple_RUWend$instant, alternative="less")  
+#Test whether weekday demand is less than weekend demand (one-tailed test)
+test_1 <- t.test(smple_RUWday$registered, smple_RUWend$registered, alternative ="less")  
 
-# Test whether weekday demand is less than holiday demand
-t.test(smple_RUWday$instant, smple_RUH$instant, alternative = "less")
+# Test whether weekday demand is less than holiday demand (one-tailed test)
+test_2 <- t.test(smple_RUWday$registered, smple_RUH$registered, alternative = "less")
+
+# Test without sampling?
+test_3 <- t.test(Registered_Users_Weekday$registered, Registered_Users_Weekend$registered, alternative = "less")
+
+# Test without sampling?
+test_4 <- t.test(Registered_Users_Weekday$registered, Registered_Users_Holiday$registered, alternative = "less")
+
+
+test_1 # Probably don't want to use--assuming parameters?
+
+test_2 # Probably don't want to use--assuming parameters?
+
+# But these only yield p-value = 1?
+
+test_3
+
+test_4
+
+
+
 
 
 # CONCLUSIONS:
 
-# For t.test 1, p-value = 0.1678 which is greater than alplha(0.05)
-# Fail to Reject NULL
+# For t.test 1
+  # Fail to Reject
 
-# For t.test 2 p-value =  0.2339 which is greater than alpha(0.05)
-# Fail to Reject NULL
+# For t.test 2
+  # Fail to Reject??
+
+# For t.test 3
+  # Fail to Reject
+
+# For t.test 4
+  # Reject
 
 # Should this be re-done with log?
-# Is the sampling method appropriate?
-
 
 
 
