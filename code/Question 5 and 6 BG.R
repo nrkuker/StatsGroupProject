@@ -29,18 +29,25 @@ Month <- data.frame(mnth, month_levels)
 yr <- c(0,1)
 Years <- data.frame(yr, year_levels)
 
-bikes$temp <- bikes$temp * 41
-bikes$atemp <- bikes$atemp * 50
+bikes$temp_c <- bikes$temp * 41
+bikes$atemp_c <- bikes$atemp * 50
 
 # Question 5 #####
 #Fit a linear model predicting the total bike rental demand from daily temperature. 
 #What kind of insights can you generate?
 #(make sure to write the linear model and interpret it in the context of the data)
 
+Temp_Cor <- cor.test(bikes$temp, bikes$cnt, method = "pearson")
+Temp_Cor
+
+#The p-value of r is less than alpha a 0.05 so we can conclude that temp and demand are
+#correlated with a correlation coefficient of 0.405
+
 Temp_Plot <- bikes %>%
   ggplot(aes(x = temp,
              y = cnt)) + 
-  geom_point() +
+  geom_jitter() +
+  stat_smooth() + 
   geom_smooth(method = lm, se = FALSE, color="grey60") 
 
 Temp_Plot
@@ -58,6 +65,12 @@ coefficients(Predict)
 #Fit another linear model predicting total daily bike rentals from daily feeling temperature. 
 #Write the linear model, interpret the slope etc. 
 #Is the temperature or feeling temperature a better predictor of bike rentals?
+
+ATemp_Cor <- cor.test(bikes$atemp, bikes$cnt, method = "pearson")
+ATemp_Cor
+
+#The p-value of r is less than alpha a 0.05 so we can conclude that a_temp and demand are
+#correlated with a correlation coefficient of 0.401
 
 Atemp_Plot <- bikes %>%
   ggplot(aes(x = atemp,
