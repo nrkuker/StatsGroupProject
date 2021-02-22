@@ -217,7 +217,7 @@ The equation of this linear model is:
 
 The linear model is statistically significant given the p-value is below the alpha of 0.05 (it is also below an alpha of 0.01). The coefficient t-value is a measure of how many standard deviations our coefficient estimate is far away from 0. In the temperature linear model, the t-statistic value is relatively far away from zero and is large relative to the standard error, which could indicate a relationship exists.
 
-However, the R squared value is only 0.1638, which indicates that the linear model is not a strong fit to the data and that the relationship between temperature and demand is not particularly strong. This R squared means roughly 16% of the variance found in overall demand can be explained by the actual temperature.
+However, the R squared value is only 0.1638, which indicates that the linear model is not a strong fit to the data and that the relationship between temperature and demand is not particularly strong. This R squared means roughly 16.4% of the variance found in overall demand can be explained by the actual temperature.
 
 The scatterplot indicates that there is a wide range of demand at almost all temperatures. The demand range only tightens at the extremes of the temperature scale. 
 
