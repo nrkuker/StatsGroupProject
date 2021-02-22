@@ -58,7 +58,7 @@ Avg_DayDemand <- mean(Day_Demand$Total)
 Office <- Hypothesis %>%
   filter(TOD == "Office")
 
-#Null hypothesis: Office Peak Demand >= Total Demand
+#Null hypothesis: Office Peak Demand >= Total Day Demand
 
 #Test whether office peak demand is greater than total demand
 t.test(Office$Total, mu=Avg_DayDemand, alternative="less")
@@ -76,37 +76,6 @@ t.test(Night$Total, mu=Avg_DayDemand, alternative="greater")
 
 #Conclusion: accept the null as p-value is greater than alpha 0.05
 
-# Alternative Approach: #####
-#Null hypothesis: Office Peak Demand >= Total Demand
-xbar=309.4155             #sample mean
-mu0=259.8624             #hypothesized value
-sd(Day_Demand$Total)    # population SD
-sigma=202.5208             #population standard deviation
-n=5824                  #sample size
-
-t= (xbar-mu0)/(sigma/sqrt(n))
-t                     #test statistic
-
-pval = pt(t, df=5823, lower.tail=TRUE)
-pval                  #lower tail p value (pt gives the probability distribution function)
-
-#Conclusion: accept the null as p-value is greater than alpha 0.05
-
-#Null hypothesis: Night Demand <= Total Demand
-xbar=50.2096            #sample mean
-mu0=189.4631           #hypothesized value
-sd(Day_Demand$Total)    # population SD
-sigma=58.44815             #population standard deviation
-n=5015                  #sample size
-
-t= (xbar-mu0)/(sigma/sqrt(n))
-t                     #test statistic
-
-pval = pt(t, df=5014, lower.tail=FALSE)
-pval                  #lower tail p value (pt gives the probability distribution function)
-
-#Conclusion = accept the null as p-value is greater than alpha 0.05
-
 # Trough vs Peak #####
 
 #Create subset of hourly demand for day trough
@@ -120,15 +89,10 @@ Trough_Demand <- mean(Trough$Total)
 #Test whether office peak demand is greater than trough demand
 t.test(Office$Total, mu=Trough_Demand, alternative="less")
 
-# Two population hypothesis test #####
-
-# Null: Difference between two means is equal
-
-t.test(formula = Total ~ TOD, data = Hypothesis, subset = TOD %in% c("Trough", "Office"))
-
-#Conclusion = reject the null as p
+# Commute versus Midday #####
 
 
+# Scatterplot for demand across the day #####
 Hypothesis_2 <- Hypothesis %>%
   group_by(Hour) %>%
   summarise(Avg_Dmd = mean(Total))
