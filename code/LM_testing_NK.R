@@ -41,8 +41,10 @@ bikes$atemp <- bikes$atemp * 50
 Temp_Plot <- bikes %>%
   ggplot(aes(x = temp,
              y = cnt)) + 
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE, color="grey60") 
+  geom_jitter(alpha = 0.2) +
+  geom_smooth(method = "lm", se = FALSE, color="red") +
+  geom_abline(slope = finalcoef[2], intercept = finalcoef[1])
+
 
 Temp_Plot
 
@@ -63,12 +65,12 @@ coefficients(Predict)
 Atemp_Plot <- bikes %>%
   ggplot(aes(x = atemp,
              y = cnt)) + 
-  geom_point() +
-  geom_smooth(method = lm, se = FALSE, color="grey60") 
+  geom_jitter(alpha = 0.2) +
+  geom_smooth(method = lm, se = FALSE, color="red") 
 
 Atemp_Plot
 
-Predict_A <- lm(cnt ~ atemp, data = bikes)
+Predict_A <- lm(sqrt(cnt) ~ atemp, data = bikes)
 summary(Predict_A)
 coefficients(Predict_A)
 
@@ -120,7 +122,7 @@ ggplot() + geom_point(aes(x = Predict_hols$fitted.values, y = Predict_hols$resid
 ggplot() + geom_point(aes(x = Predict_hols$fitted.values, y = Predict_holscas$residuals))
 
 
-cor(x = bikes$atemp, y = bikes$registered, method = "pearson")
+cor(x = bikes$temp, y = sqrt(bikes$cnt), method = "pearson")
 # strongest correlation between temp & casual, lowest atemp & registered
 
 bikes %>% filter(holiday == 1) %>% 
@@ -162,3 +164,71 @@ qqline(#x = Predict$fitted.values,
 
 # Thoughts:
 # Use time of day that Brendan did in Q2 to evaluate based on time of day
+
+
+
+
+
+# 
+# logSalePrice <-log(ames2$SalePrice)
+# 
+# ggplot(ames2) +
+#   aes(x = Gr.Liv.Area, y = logSalePrice) +
+#   geom_point(colour = "#0c4c8a") +
+#   theme_minimal()
+# 
+# 
+# model2 <- lm(logSalePrice ~ Gr.Liv.Area, data = ames2)
+# summary(model2)
+# coef  <- coefficients(model2)       # coefficients
+# 
+# finalcoeff = exp(coef)
+# finalcoeff
+# 
+# #For 100 square feet increase in above ground living area, exponentiate the coeff*100
+# 
+exp(.0005939377*100)
+exp(.0005939377)+exp(100)
+
+
+bikes_transform <- bikes %>% 
+  mutate(cnt_sqrt = sqrt(cnt),
+         cnt_ln = log(cnt),
+         cnt_log = log10(cnt))
+
+
+bikes_transform %>% 
+  # filter(season == 3) %>%
+  ggplot(aes(
+    x = (temp),
+    y = sqrt(casual)
+  )) +
+  geom_jitter(alpha = 0.2) #+ 
+  #geom_abline(slope = finalcoef[2], intercept = finalcoef[1])
+  # geom_smooth(method = "lm", se = FALSE, color = "red")
+
+cor(bikes$temp, sqrt(bikes$cnt))
+
+ols.sqrt.y <- lm(data = bikes, formula = sqrt(cnt) ~ temp)
+summary(ols.sqrt.y)
+coef <- coefficients(ols.sqrt.y)
+
+finalcoef <- coef^2
+finalcoef[1]
+
+
+ols.sqrt.y.casual <- lm(data = bikes, formula = sqrt(casual) ~ temp)
+summary(ols.sqrt.y.casual)
+
+ols.sqrt.y.registered <- lm(data = bikes, formula = sqrt(registered) ~ temp)
+summary(ols.sqrt.y.registered)
+
+
+ols.y <- lm(data = bikes, formula = (cnt) ~ temp)
+summary(ols.y)
+
+ols.y.casual <- lm(data = bikes, formula = (casual) ~ temp)
+summary(ols.y.casual)
+
+ols.y.registered <- lm(data = bikes, formula = (registered) ~ temp)
+summary(ols.y.registered)
