@@ -70,7 +70,10 @@ for(jj in BikeShare_Unique){
 Count_per_Month <- data.frame(rbind(Month_Store_2011, Month_Store_2012))
 
 names(Count_per_Month)[1] <- "Month"
-names(Count_per_Month)[2] <-  "Riders"
+names(Count_per_Month)[2] <- "Riders"
+
+qtr_labels <- c("Jan\n2011", "Apr\n2011", "Jul\n2011", "Oct\n2011",
+                "Jan\n2012", "Apr\n2012", "Jul\n2012", "Oct\n2012")
 ```
 
 Question 1 - Anthony & Carl
@@ -78,7 +81,16 @@ General trend - positive over the years
 
 ```{r}
 ggplot(Count_per_Month, aes(x = Month, y = Riders)) + geom_point(alpha = 0.6) +
-  stat_smooth (method = "lm", color = "red", se = FALSE)
+  # stat_smooth (method = "lm", color = "red", se = FALSE) + 
+  coord_cartesian(xlim = c(0.5, 24.5), ylim = c(0, 250000), expand = F) +
+  scale_x_continuous(labels = qtr_labels, breaks = seq(1, 24, 3)) + 
+
+  labs(title = "Monthly Bike Rental Demand",
+       x = "Month", y = "Total Riders") +
+  theme_igray() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 14),
+        plot.subtitle = element_text(hjust = 0.5, size = 11),
+        axis.title = element_text(size = 11))
 ```
 
 # Trends by Season
@@ -142,14 +154,15 @@ ggplot(Bike_Seasonality, aes(x=Season, y=Daily_Demand, fill=Season)) +
   geom_bar(position = "dodge", stat = "identity") +
   scale_fill_viridis_d(option = "D", end = 0.75) + 
   facet_wrap(~Year) +
-  # coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 6900), expand = F) +
-  labs(title = "Daily Demand for Bike Rental", 
-       x = "Season", y = "Daily Demand",
+  coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 300), expand = F) +
+  labs(title = "Average Hourly Demand for Bike Rentals", 
+       x = "Season", y = "Hourly Demand",
        fill = "Season") +
   theme_igray() + 
   theme(plot.title = element_text(hjust = 0.5, size = 14),
         plot.subtitle = element_text(hjust = 0.5, size = 11),
         axis.title = element_text(size = 11),
+        strip.background = element_rect(fill = "grey80"),
         legend.title = element_text(size = 10),
         legend.text = element_text(size = 8),
         legend.key = element_blank())
@@ -161,9 +174,10 @@ When the seasons are split into the individual months, there is a more gradual t
 ggplot(Bike_Monthly, aes(x=Month, y=Hourly_Demand, fill=Month)) +
   geom_bar(position = "dodge", stat = "identity") +
   scale_fill_viridis_d(option = "D") + 
+  scale_x_discrete(labels = c("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D")) + 
   facet_wrap(~Year) +
   # coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 6900), expand = F) +
-  labs(title = "Demand for Bike Rental by Month", 
+  labs(title = "Average Hourly Rental Demand by Month", 
        x = "Month", y = "Hourly Demand",
        fill = "Month") +
   theme_igray() + 
@@ -177,9 +191,8 @@ ggplot(Bike_Monthly, aes(x=Month, y=Hourly_Demand, fill=Month)) +
 ```
 
 # Further Trends: Looking at Weather and Rider Type
-```{r Q4 Prep Code, include=}
-B <- 
-  bikes %>% 
+```{r Q4 Prep Code, include = FALSE}
+B <- bikes %>% 
   group_by(weathersit) %>% 
   mutate(weathersit = recode_factor(weathersit, !!!weather_levels)) %>%
   summarise(riders = sum(cnt), 
@@ -205,7 +218,7 @@ b_pivotlong.summary <-
   mutate(prop_weathergivenrider = N/sum(N))
 ```
 
-Hourly weather conditions were documented within the dataset and categorized as Clear, Mist, Light Precipitation, and Heavy Precipitation. As weather conditions worsen, there is a steep decrease in overall ridership. Though there are more registered riders than casual riders, this decrease in ridership holds true when looking at both subsets of rider type.
+Hourly weather conditions were documented within the dataset and categorized as Clear, Mist, Light Precipitation, and Heavy Precipitation. As weather conditions worsen, there is a steep decrease in overall ridership. Though there are more registered riders than casual riders, this decrease in demand holds true when looking at both subsets of rider type.
 
 ```{r}
 # Total Riders by Weather Type
@@ -247,7 +260,6 @@ ggplot(b_pivotlong.summary, aes(weathersit, y = N, fill = ridertype)) +
 ```
 
 # Predicting Total Bike Rental Demand
-Question 5 - Fit a linear model predicting the total bike rental demand from daily temperature. What kind of insights can you generate? (make sure to write the linear model and interpret it in the context of the data)
 
 ### Daily Temperature
 ```{r Q5 Prep Code, include = FALSE}
@@ -262,14 +274,16 @@ Temp_Plot
 Predict <- lm(cnt ~ temp, data = bikes)
 summary(Predict)
 coefficients(Predict)
+
+cor(bikes$cnt, bikes$temp)
 ```
-The equation of this linear model is: 
-    Expected Demand = -0.04 + (381. 30 * Temp)
-    (where temperature is the normalized temperature in the data set)
+To further analyze the relationship between bike demand and weather conditions, we ran two different regression analyses. The first analysis attempted to define the relationship between normalized temperature and total bike demand. The equation of the linear model generated is: 
 
-The linear model is statistically significant given the p-value is below the alpha of 0.05 (it is also below an alpha of 0.01). The coefficient t-value is a measure of how many standard deviations our coefficient estimate is far away from 0. In the temperature linear model, the t-statistic value is relatively far away from zero and is large relative to the standard error, which could indicate a relationship exists.
+    Expected Demand = -0.04 + (381.30 * Temp)
 
-However, the R squared value is only 0.1638, which indicates that the linear model is not a strong fit to the data and that the relationship between temperature and demand is not particularly strong. This R squared means roughly 16.4% of the variance found in overall demand can be explained by the actual temperature.
+Given the derived equation, one unit change in normalized temperature is expected to produce an increase in hourly ridership of 381.3 riders. While this model is statistically significant, the associated R-squared value suggests that only 16.4% of the variance in total bike demand can be explained by variance in temperature. The low R-squared value of 0.164 indicates that the model is not a strong fit for the data and that the linear relationship between temperature and demand is not particularly strong. 
+
+The coefficient t-value is a measure of how many standard deviations our coefficient estimate is far away from 0. In the temperature linear model, the t-statistic value is relatively far away from zero and is large relative to the standard error, which could indicate a relationship exists.
 
 The scatterplot indicates that there is a wide range of demand at almost all temperatures. The demand range only tightens at the extremes of the temperature scale. 
 
@@ -312,7 +326,7 @@ The actual temperature is a better predictor of overall demand for bike rentals.
 # Correlation between Rental Demand and Typical Office Hours
 ```{r Q2 Prep Code, include = FALSE}
 #Create map of hourly demand to time of day windows
-TOD <- read.csv("data/TOD.csv") %>% 
+TOD <- read.csv("../data/TOD.csv") %>% 
   as_tibble()
 names(TOD)[names(TOD) == "ï..Hour"] <- "Hour"
 
