@@ -11,9 +11,13 @@ output:
 # packages
 library(tidyverse)
 library(lubridate)
+library(ggthemes)
 # Rmd options
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
-
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
 # load data
 bikes <- read.csv("../data/Capital Bike Sharing data by hour.csv")
 
@@ -30,9 +34,7 @@ weather_levels <- c("Clear", "Mist", "Light Precip.", "Heavy Precip.")
 To be written at later date
 
 # Overall Trends in Bike Rental Demand
-```{r, include = FALSE}
-# PREP CODE RELATED TO Q1
-
+```{r Q1 Prep Code, include = FALSE}
 # Create for loops for 2011 and 2012
 BikeShare_Unique <- unique(bikes$mnth)
 BikeShare_Length <- length(unique(bikes$mnth))
@@ -80,9 +82,7 @@ ggplot(Count_per_Month, aes(x = Month, y = Riders)) + geom_point(alpha = 0.6) +
 ```
 
 # Trends by Season
-```{r, include = FALSE}
-# PREP CODE RELATED TO Q3
-
+```{r Q3 Prep Code, include = FALSE}
 Seasons <- data.frame(season = c(1,2,3,4), season_levels)
 Month <- data.frame(mnth = c(1:12), month_levels)
 Years <- data.frame(yr = c(0,1), year_levels)
@@ -102,7 +102,18 @@ Bike_Seasonality <- Bike_Season %>%
   group_by(Season, Year) %>%
   summarise(Daily_Demand = sum(Demand)/sum(Count))
 
+
 Bike_Seasonality$Season <- factor(Bike_Seasonality$Season, levels = season_levels)
+
+# bikes %>% 
+#   group_by(yr, season) %>% 
+#   summarise(days = length(unique(dteday)),
+#             season_demand = sum(cnt),
+#             Daily_Demand = season_demand/days,
+#             .groups = "drop") %>% 
+#   mutate(Year = recode_factor(yr, `0` = "2011", `1` = "2012"),
+#          Season = recode_factor(season, levels = !!!season_levels))
+
 
 #---
 
@@ -127,23 +138,46 @@ Bike_Monthly$Month <- factor(Bike_Monthly$Month, levels = month_levels)
 Looking at the overall seasonal impact on hourly demand, it is clear that the Winter is a time of depressed demand likely related to the cold temperatures, which will be addressed later. The Spring and Fall are quite similar in demand terms only trailing summer by a small margin on an hourly basis. The seasonal trends in hourly demand are consistent between the two years of data, which indicates it is a continuing trend.
 
 ```{r}
-ggplot(Bike_Seasonality, aes(x=Year, y=Daily_Demand, fill=Season)) +
+ggplot(Bike_Seasonality, aes(x=Season, y=Daily_Demand, fill=Season)) +
   geom_bar(position = "dodge", stat = "identity") +
-  scale_fill_brewer(palette = "Paired")
+  scale_fill_viridis_d(option = "D", end = 0.75) + 
+  facet_wrap(~Year) +
+  # coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 6900), expand = F) +
+  labs(title = "Daily Demand for Bike Rental", 
+       x = "Season", y = "Daily Demand",
+       fill = "Season") +
+  theme_igray() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 14),
+        plot.subtitle = element_text(hjust = 0.5, size = 11),
+        axis.title = element_text(size = 11),
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 8),
+        legend.key = element_blank())
 ```
 
 When the seasons are split into the individual months, there is a more gradual transition into and out of the Winter depressed demand period. The overall trend of seasonality affecting demand holds and January’s demand being 40% of that in June, the peak month. Once again the monthly trend holds consistent between the two years in the dataset. 
 
 ```{r}
-ggplot(Bike_Monthly, aes(x=Year, y=Hourly_Demand, fill=Month)) +
+ggplot(Bike_Monthly, aes(x=Month, y=Hourly_Demand, fill=Month)) +
   geom_bar(position = "dodge", stat = "identity") +
-  scale_fill_brewer(palette = "Paired")
+  scale_fill_viridis_d(option = "D") + 
+  facet_wrap(~Year) +
+  # coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 6900), expand = F) +
+  labs(title = "Demand for Bike Rental by Month", 
+       x = "Month", y = "Hourly Demand",
+       fill = "Month") +
+  theme_igray() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 14),
+        plot.subtitle = element_text(hjust = 0.5, size = 11),
+        axis.title = element_text(size = 11),
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 8),
+        legend.key = element_blank())
+
 ```
 
 # Further Trends: Looking at Weather and Rider Type
-```{r, include = FALSE}
-# PREP CODE RELATED TO Q4
-
+```{r Q4 Prep Code, include=}
 B <- 
   bikes %>% 
   group_by(weathersit) %>% 
@@ -175,11 +209,20 @@ Hourly weather conditions were documented within the dataset and categorized as 
 
 ```{r}
 # Total Riders by Weather Type
-ggplot(B, aes(x = weathersit, y = riders, fill = weathersit)) + geom_col() + 
+ggplot(B, aes(x = weathersit, y = riders, fill = weathersit)) + 
+  geom_col() + 
+  geom_text(aes(label = riders), vjust = -0.5) + 
+  scale_fill_viridis_d(option = "D") + 
+  coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 2500000), expand = F) +
   labs(title = "Total Riders by Weather Type", 
        x = "Weather Type", y = "Total Riders",
        fill = "Weather Type") +
-  geom_text(aes(label = riders), vjust = -0.5)
+  theme_igray() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 14),
+        axis.title = element_text(size = 11),
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 8),
+        legend.key = element_blank())
 ```
 
 As weather conditions worsen, casual riders make up a decreasing proportion of total ridership. This suggests that casual riders may be more influenced by the weather, and are more likely to choose other modes of transportation when weather conditions are unpleasant or uncomfortable.
@@ -190,15 +233,24 @@ ggplot(b_pivotlong.summary, aes(weathersit, y = N, fill = ridertype)) +
   labs(title = "How Weather Affects Ridership", 
        x = "Type of Weather", y = "Proportion of Rider Type",
        fill = "Rider Type") + 
-  geom_text(aes(label = round(prop_ridergivenweather, 3)), position = "fill", vjust = 1)
+  geom_text(data = subset(b_pivotlong.summary, ridertype == "casual"),
+            aes(label = round(prop_ridergivenweather, 3)), position = "fill", vjust = -0.2) + 
+  geom_text(data = subset(b_pivotlong.summary, ridertype == "registered"),
+            aes(label = round(prop_ridergivenweather, 3)), color = "grey90", position = "fill", vjust = 14) + 
+  scale_fill_viridis_d(option = "D", begin = 0, end = .45, direction = -1) + 
+  theme_igray() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 14),
+        axis.title = element_text(size = 11),
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 8),
+        legend.key = element_blank())
 ```
 
 # Predicting Total Bike Rental Demand
 Question 5 - Fit a linear model predicting the total bike rental demand from daily temperature. What kind of insights can you generate? (make sure to write the linear model and interpret it in the context of the data)
 
 ### Daily Temperature
-```{r, include = FALSE}
-# PREP CODE RELATED TO Q5
+```{r Q5 Prep Code, include = FALSE}
 Temp_Plot <- bikes %>%
   ggplot(aes(x = temp,
              y = cnt)) + 
@@ -208,7 +260,7 @@ Temp_Plot <- bikes %>%
 Temp_Plot
 
 Predict <- lm(cnt ~ temp, data = bikes)
-summary(Predi ct)
+summary(Predict)
 coefficients(Predict)
 ```
 The equation of this linear model is: 
@@ -222,8 +274,7 @@ However, the R squared value is only 0.1638, which indicates that the linear mod
 The scatterplot indicates that there is a wide range of demand at almost all temperatures. The demand range only tightens at the extremes of the temperature scale. 
 
 ### Daily Feeling Temperature
-```{r, include = FALSE}
-# PREP CODE RELATED TO Q6
+```{r Q6 Prep Code, include = FALSE}
 Atemp_Plot <- bikes %>%
   ggplot(aes(x = atemp,
              y = cnt)) + 
@@ -259,8 +310,7 @@ Part of Question 6: Is the temperature or feeling temperature a better predictor
 The actual temperature is a better predictor of overall demand for bike rentals. The higher R squared and lower standard error in the temperature linear model indicates a marginally better fit than the feels like temperature model. That being said, the R squared is low for both models and the standard error high. Neither model is a particularly good fit for the data and does not explain a large portion in the demand for bike rentals.
 
 # Correlation between Rental Demand and Typical Office Hours
-```{r, include = FALSE}
-# PREP CODE RELATED TO Q2
+```{r Q2 Prep Code, include = FALSE}
 #Create map of hourly demand to time of day windows
 TOD <- read.csv("data/TOD.csv") %>% 
   as_tibble()
