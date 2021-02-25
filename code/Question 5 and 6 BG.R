@@ -90,3 +90,27 @@ coefficients(Predict_A)
 #increase in feels like temp is less impactful on demand than actual temp
 #statistically significant (p value <= alpha of 0.05)
 #temp is a better predictor of bike rentals (r squared, standard error)
+
+# Split by year ####
+
+# Filter by year
+bikes <- left_join(bikes, Years)
+
+Temp_2011 <- bikes %>%
+  filter(year_levels == 2011)
+
+Temp_2012 <- bikes %>%
+  filter(year_levels == 2012)
+
+Predict_2011 <- lm(cnt ~ temp, data = Temp_2011)
+summary(Predict_2011)
+coefficients(Predict_2011)
+
+Predict_2012 <- lm(cnt ~ temp, data = Temp_2012)
+summary(Predict_2012)
+coefficients(Predict_2012)
+
+#demand = -0.0356 + (381.295 * temp)
+#low r squared
+#wide range of demand at every temp
+#statistically significant (p value <= alpha of 0.05)

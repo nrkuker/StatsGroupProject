@@ -89,8 +89,6 @@ Trough_Demand <- mean(Trough$Total)
 #Test whether office peak demand is greater than trough demand
 t.test(Office$Total, mu=Trough_Demand, alternative="less")
 
-# Commute versus Midday #####
-
 
 # Scatterplot for demand across the day #####
 Hypothesis_2 <- Hypothesis %>%

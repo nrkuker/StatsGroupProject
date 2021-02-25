@@ -6,7 +6,7 @@ output:
   word_document:
     reference_docx: word_styles_reference.docx
 ---
-
+ 
 ```{r setup, include = FALSE}
 # packages
 library(tidyverse)
@@ -208,11 +208,11 @@ Temp_Plot <- bikes %>%
 Temp_Plot
 
 Predict <- lm(cnt ~ temp, data = bikes)
-summary(Predict)
+summary(Predi ct)
 coefficients(Predict)
 ```
 The equation of this linear model is: 
-    Demand = -0.036 + (381.30 * Temp)
+    Expected Demand = -0.04 + (381. 30 * Temp)
     (where temperature is the normalized temperature in the data set)
 
 The linear model is statistically significant given the p-value is below the alpha of 0.05 (it is also below an alpha of 0.01). The coefficient t-value is a measure of how many standard deviations our coefficient estimate is far away from 0. In the temperature linear model, the t-statistic value is relatively far away from zero and is large relative to the standard error, which could indicate a relationship exists.
@@ -240,7 +240,7 @@ coefficients(Predict_A)
 Question 6 - Fit another linear model predicting total daily bike rentals from daily feeling temperature. Write the linear model, interpret the slope, etc.
 
 The equation of this linear model is: 
-    Demand = -11.88 + (423.18 * Feels Like Temp)
+    Expected Demand = -11.88 + (423.18 * Feels Like Temp)
     (where feels like temperature is the normalized feels like temperature in the data set)
 
 The linear model is statistically significant given the p-value is below the alpha of 0.05 (it is also below an alpha of 0.01). The p-value tests the null hypothesis that there is no correlation between the feels like temperature and overall demand and we can reject the null hypothesis.
@@ -261,12 +261,58 @@ The actual temperature is a better predictor of overall demand for bike rentals.
 # Correlation between Rental Demand and Typical Office Hours
 ```{r, include = FALSE}
 # PREP CODE RELATED TO Q2
+#Create map of hourly demand to time of day windows
+TOD <- read.csv("data/TOD.csv") %>% 
+  as_tibble()
+names(TOD)[names(TOD) == "ï..Hour"] <- "Hour"
 
+#Create clean dataset for hourly demand
+Hypothesis <- select(bikes, Hour = hr, Weekday = weekday, Holiday = holiday, Workingday = workingday, 
+         Casual = casual, Registered = registered, Total = cnt) 
+
+Hypothesis <- left_join(Hypothesis, TOD, by = "Hour")
+
+#Create subset of hourly demand for day-time
+Day_Demand <- Hypothesis %>%
+  filter(Window == "Day")
+
+#Create mean of hourly demand for day
+Avg_DayDemand <- mean(Day_Demand$Total)
+
+#Create subset of hourly demand for office peak
+Office <- Hypothesis %>%
+  filter(TOD == "Office")
+
+#Null hypothesis: Office Peak Demand >= Total Day Demand
+
+#Test whether office peak demand is greater than total demand
+t.test(Office$Total, mu=Avg_DayDemand, alternative="less")
+
+#Conclusion: accept the null as p-value is greater than alpha 0.05
+
+#Create subset of hourly demand for night
+Night <- Hypothesis %>%
+  filter(TOD == "Night")
+
+#Null hypothesis: Night Demand <= Total Demand
+
+#Test whether night demand is less than total demand
+t.test(Night$Total, mu=Avg_DayDemand, alternative="greater")
+
+#Conclusion: accept the null as p-value is greater than alpha 0.05
 ```
 
 ### Is there a "rush hour" for bike rentals?
 
 Hypothesis: There must be high demand during office timings. Early morning and late evening can have different trends (cyclist) and low demand from 10:00pm to 4:00am. Do you agree?
+
+**Add distrubtion of demand over hours to final report
+
+To assess whether there is higher demand during office hours than during the overall daytime hours, a hypothesis test was run. The null hypothesis being tested was stated as "Office Hour Demand" (or the sample mean) is greater than or equal to the "Daytime Demand" (or the population mean). The result of the hypothesis test was that we did not reject the null hypothesis and we have evidence that "Office Hour Demand" is greater than the "Daytime Demand". We ran this same test for "Office Hour Demand" being greater than or equal to the "Trough Daytime Demand" (or the hours outside office timings) and, again, did not reject the null hypothesis and there is evidence that Office Hours have more demand than the remaining Daytime Hours.
+
+**Need to do early morning versus late evening?
+
+The overnight hours (20:00 to 04:00) had a hypothesis that their demand was lower than the Daytime Demand and so another hypothesis test was run. The null hypothesis was stated as "Overnight Demand" is less than or equal to "Daytime Demand". Again, the result was to not reject the null hypothesis as the test statistic was not in the rejection range. So, there is evidence that the overnight hours are low demand periods.
 
 ### Workdays vs. Weekends/Holidays
 
@@ -275,6 +321,10 @@ Hypothesis: Registered users demand more bike on weekdays compared to the weeken
 # Recommendations and Conclusions
 
 Question 7 - What is your overall recommendation about the demand for bike rentals for the Capital Bike Share management? Share your insights with the company based on your analysis.
+
+* Overnight discounts or peak commute surcharges?
+* Lower staffing and inventory in winter? Good time for maintenance?
+* 
 
 \newpage
 # Appendix
