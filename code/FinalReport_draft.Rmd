@@ -70,7 +70,10 @@ for(jj in BikeShare_Unique){
 Count_per_Month <- data.frame(rbind(Month_Store_2011, Month_Store_2012))
 
 names(Count_per_Month)[1] <- "Month"
-names(Count_per_Month)[2] <-  "Riders"
+names(Count_per_Month)[2] <- "Riders"
+
+qtr_labels <- c("Jan\n2011", "Apr\n2011", "Jul\n2011", "Oct\n2011",
+                "Jan\n2012", "Apr\n2012", "Jul\n2012", "Oct\n2012")
 ```
 
 Question 1 - Anthony & Carl
@@ -78,7 +81,16 @@ General trend - positive over the years
 
 ```{r}
 ggplot(Count_per_Month, aes(x = Month, y = Riders)) + geom_point(alpha = 0.6) +
-  stat_smooth (method = "lm", color = "red", se = FALSE)
+  # stat_smooth (method = "lm", color = "red", se = FALSE) + 
+  coord_cartesian(xlim = c(0.5, 24.5), ylim = c(0, 250000), expand = F) +
+  scale_x_continuous(labels = qtr_labels, breaks = seq(1, 24, 3)) + 
+
+  labs(title = "Monthly Bike Rental Demand",
+       x = "Month", y = "Total Riders") +
+  theme_igray() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 14),
+        plot.subtitle = element_text(hjust = 0.5, size = 11),
+        axis.title = element_text(size = 11))
 ```
 
 # Trends by Season
@@ -142,14 +154,15 @@ ggplot(Bike_Seasonality, aes(x=Season, y=Daily_Demand, fill=Season)) +
   geom_bar(position = "dodge", stat = "identity") +
   scale_fill_viridis_d(option = "D", end = 0.75) + 
   facet_wrap(~Year) +
-  # coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 6900), expand = F) +
-  labs(title = "Daily Demand for Bike Rental", 
-       x = "Season", y = "Daily Demand",
+  coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 300), expand = F) +
+  labs(title = "Average Hourly Demand for Bike Rentals", 
+       x = "Season", y = "Hourly Demand",
        fill = "Season") +
   theme_igray() + 
   theme(plot.title = element_text(hjust = 0.5, size = 14),
         plot.subtitle = element_text(hjust = 0.5, size = 11),
         axis.title = element_text(size = 11),
+        strip.background = element_rect(fill = "grey80"),
         legend.title = element_text(size = 10),
         legend.text = element_text(size = 8),
         legend.key = element_blank())
@@ -161,9 +174,10 @@ When the seasons are split into the individual months, there is a more gradual t
 ggplot(Bike_Monthly, aes(x=Month, y=Hourly_Demand, fill=Month)) +
   geom_bar(position = "dodge", stat = "identity") +
   scale_fill_viridis_d(option = "D") + 
+  scale_x_discrete(labels = c("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D")) + 
   facet_wrap(~Year) +
   # coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 6900), expand = F) +
-  labs(title = "Demand for Bike Rental by Month", 
+  labs(title = "Average Hourly Rental Demand by Month", 
        x = "Month", y = "Hourly Demand",
        fill = "Month") +
   theme_igray() + 
