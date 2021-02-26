@@ -366,6 +366,10 @@ t.test(Night$Total, mu=Avg_DayDemand, alternative="greater")
 #Conclusion: accept the null as p-value is greater than alpha 0.05
 ```
 
+### Workdays vs. Weekends/Holidays
+
+Hypothesis: Registered users demand more bike on weekdays compared to the weekend or holiday. Do you agree?
+
 ### Is there a "rush hour" for bike rentals?
 
 Hypothesis: There must be high demand during office timings. Early morning and late evening can have different trends (cyclist) and low demand from 10:00pm to 4:00am. Do you agree?
@@ -377,10 +381,6 @@ To assess whether there is higher demand during office hours than during the ove
 **Need to do early morning versus late evening?
 
 The overnight hours (20:00 to 04:00) had a hypothesis that their demand was lower than the Daytime Demand and so another hypothesis test was run. The null hypothesis was stated as "Overnight Demand" is less than or equal to "Daytime Demand". Again, the result was to not reject the null hypothesis as the test statistic was not in the rejection range. So, there is evidence that the overnight hours are low demand periods.
-
-### Workdays vs. Weekends/Holidays
-
-Hypothesis: Registered users demand more bike on weekdays compared to the weekend or holiday. Do you agree?
 
 # Recommendations and Conclusions
 
