@@ -46,9 +46,13 @@ Temp_Cor
 Temp_Plot <- bikes %>%
   ggplot(aes(x = temp,
              y = cnt)) + 
-  geom_jitter() +
-  stat_smooth() + 
-  geom_smooth(method = lm, se = FALSE, color="grey60") 
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE, color="blue") +
+  labs(title = "Daily Temperature versus Rentals", 
+       x = "Daily Temperature (Normalised)", y = "Total Riders") +
+  theme_igray() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 14),
+        axis.title = element_text(size = 11))
 
 Temp_Plot
 
@@ -76,7 +80,12 @@ Atemp_Plot <- bikes %>%
   ggplot(aes(x = atemp,
              y = cnt)) + 
   geom_point() +
-  geom_smooth(method = lm, se = FALSE, color="grey60") 
+  geom_smooth(method = lm, se = FALSE, color="blue") +
+  labs(title = "Daily Feeling Temperature versus Rentals", 
+       x = "Daily Feeling emperature (Normalised)", y = "Total Riders") +
+  theme_igray() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 14),
+        axis.title = element_text(size = 11))
 
 Atemp_Plot
 
