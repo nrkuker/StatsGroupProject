@@ -95,6 +95,17 @@ Hypothesis_2 <- Hypothesis %>%
   group_by(Hour) %>%
   summarise(Avg_Dmd = mean(Total))
 
-ggplot(Hypothesis_2, aes(x = Hour,
-                         y = Avg_Dmd)) +
-  geom_bar(stat='identity')
+scale_x_discrete(labels = c("0000", "0100", "0200", "0300", "0400", "0500", "0600", "0700", "0800", 
+                            "O900", "1000", "1100", "1200", "1300", "1400", "1500", "1600", "1700", 
+                            "1800", "1900", "2000", "2100", "2200", "2300")) +
+  
+ggplot(Hypothesis_2, aes(x = as.factor(Hour),
+                         y = Avg_Dmd,
+                         fill = as.factor(Hour))) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_viridis_d(option = "D") +
+  labs(title = "Total Riders by Time of Day", 
+       x = "Hour", y = "Total Riders", fill = "Hour") +
+  theme_igray() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 14),
+        axis.title = element_text(size = 11))
