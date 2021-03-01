@@ -122,7 +122,8 @@ ggplot() + geom_point(aes(x = Predict_hols$fitted.values, y = Predict_hols$resid
 ggplot() + geom_point(aes(x = Predict_hols$fitted.values, y = Predict_holscas$residuals))
 
 
-cor(x = bikes$temp, y = sqrt(bikes$cnt), method = "pearson")
+cor(x = bikes$temp, y = (bikes$cnt), method = "pearson")
+cor(x = bikes$atemp, y = (bikes$cnt), method = "pearson")
 # strongest correlation between temp & casual, lowest atemp & registered
 
 bikes %>% filter(holiday == 1) %>% 
@@ -232,3 +233,12 @@ summary(ols.y.casual)
 
 ols.y.registered <- lm(data = bikes, formula = (registered) ~ temp)
 summary(ols.y.registered)
+
+
+
+# Days of month? ####
+days <- bikes %>% 
+  mutate(day = str_sub(dteday, 9, 10)) %>% 
+  select(instant, dteday, day)
+table(days$day)
+ggplot(data = days) + geom_bar(aes(x = day))
