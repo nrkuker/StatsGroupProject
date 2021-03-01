@@ -218,22 +218,33 @@ b_pivotlong.summary <-
   b_pivotlong.summary %>% 
   group_by(ridertype) %>% 
   mutate(prop_weathergivenrider = N/sum(N))
+
+options(pillar.sigfig = 5)
+BB <- bikes %>% 
+  group_by(weathersit) %>% 
+  mutate(weathersit = recode_factor(weathersit, !!!weather_levels)) %>% 
+  tally()
+
+B2 <- left_join(B, BB) %>% 
+  mutate(rider_pct = riders/sum(riders),
+         obs_pct = n/sum(n),
+         avg_hourly_riders = riders/n)
 ```
 
 Hourly weather conditions were documented within the dataset and categorized as Clear, Mist, Light Precipitation, and Heavy Precipitation. As weather conditions worsen, there is a steep decrease in overall ridership. Though there are more registered riders than casual riders, this decrease in demand holds true when looking at both subsets of rider type.
 
 ```{r}
-# Total Riders by Weather Type
-ggplot(B, aes(x = weathersit, y = riders, fill = weathersit)) + 
+# Avg. Hourly Riders by Weather Type
+ggplot(B2, aes(x = weathersit, y = avg_hourly_riders, fill = weathersit)) + 
   geom_col() + 
-  geom_text(aes(label = formatC(riders, big.mark = ",")), vjust = -0.2) + 
-  scale_fill_viridis_d(option = "D") + 
+  geom_text(aes(label = round(avg_hourly_riders,1)), vjust = -0.5) + 
+  scale_fill_viridis_d(option = "D", end = 0.75) + 
   scale_x_discrete(labels = c("Clear", "Mist", "Light\nPrecip.", "Heavy\nPrecip.")) + 
-  scale_y_continuous(labels = paste0(c(0, 5, 10, 15, 20, 25)*10^-1, "M"),
-                     breaks =        c(0, 5, 10, 15, 20, 25)*10^5    ) +
-  coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 2600000), expand = F) +
-  labs(title = "Total Riders by Weather Type", 
-       x = "Weather Type", y = "Total Riders (in millions)",
+  # scale_y_continuous(labels = paste0(c(0, 5, 10, 15, 20, 25)*10^-1, "M"),
+  #                    breaks =        c(0, 5, 10, 15, 20, 25)*10^5    ) +
+  coord_cartesian(xlim = c(0.4, 4.6), ylim = c(0, 220), expand = F) +
+  labs(title = "Average Hourly Riders by Weather Type", 
+       x = "Weather Type", y = "Avg. Hourly Riders",
        fill = "Weather Type") +
   theme_igray() + 
   theme(plot.title = element_text(hjust = 0.5, size = 14),

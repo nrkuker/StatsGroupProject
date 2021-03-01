@@ -78,6 +78,14 @@ bikes %>% filter(weathersit == 4)
 
 table(b_pivotlong$ridertype, b_pivotlong$weathersit)
 
+# num casual vs registered
+B %>% 
+  summarise(total = sum(riders),
+            total_reg = sum(reg),
+            total_cas = sum(cas)) %>% 
+  mutate(prop_reg = total_reg/total,
+         prop_cas = total_cas/total)
+
 
 
 
@@ -90,6 +98,8 @@ ggplot(b_pivotlong.summary, aes(weathersit, y = N, fill = ridertype)) +
        x = "Type of Weather", y = "Proportion of Rider Type",
        fill = "Rider Type") + 
   geom_text(aes(label = round(prop_ridergivenweather, 3)), position = "fill", vjust = 1)
+
+
 
 # breakdown of obs b/t weather cats similar for both rider types
   # does this contradict previous plot?
@@ -121,6 +131,58 @@ ggplot(B, aes(x = weathersit, y = riders, fill = weathersit)) + geom_col() +
        x = "Weather Type", y = "Total Riders",
        fill = "Weather Type") +
   geom_text(aes(label = riders), vjust = -0.5)
+
+# cut from final report
+# Total Riders by Weather Type
+ggplot(B, aes(x = weathersit, y = riders, fill = weathersit)) + 
+  geom_col() + 
+  geom_text(aes(label = formatC(riders, big.mark = ",")), vjust = -0.2) + 
+  scale_fill_viridis_d(option = "D") + 
+  scale_x_discrete(labels = c("Clear", "Mist", "Light\nPrecip.", "Heavy\nPrecip.")) + 
+  scale_y_continuous(labels = paste0(c(0, 5, 10, 15, 20, 25)*10^-1, "M"),
+                     breaks =        c(0, 5, 10, 15, 20, 25)*10^5    ) +
+  coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 2600000), expand = F) +
+  labs(title = "Total Riders by Weather Type", 
+       x = "Weather Type", y = "Total Riders (in millions)",
+       fill = "Weather Type") +
+  theme_igray() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 14),
+        # plot.margin = unit(c(2, 7, 2, 2), units = "mm"),
+        axis.title = element_text(size = 11),
+        legend.title = element_text(size = 10),
+        # legend.text = element_text(size = 8),
+        legend.key = element_blank(),
+        legend.position = "right")
+
+
+
+# average hourly riders ####
+options(pillar.sigfig = 5)
+BB <- bikes %>% 
+  group_by(weathersit) %>% 
+  mutate(weathersit = recode_factor(weathersit, !!!weather_levels)) %>% 
+  tally()
+
+B2 <- left_join(B, BB) %>% 
+  mutate(rider_pct = riders/sum(riders),
+         obs_pct = n/sum(n),
+         avg_hourly_riders = riders/n)
+B2
+
+# where dots are % of obs, and bars are % of riders
+ggplot(B2) + 
+  # geom_col(aes(x = weathersit, y = rider_pct, fill = weathersit)) + 
+  # geom_point(aes(x = weathersit, y = obs_pct)) +
+  geom_col(aes(x = weathersit, y = diff, fill = weathersit))
+
+# overall ridership using avg hourly riders
+ggplot(B2, aes(x = weathersit, y = avg_hourly_riders, fill = weathersit)) + geom_col() + 
+  labs(title = "Average Hourly Riders by Weather Type", 
+       x = "Weather Type", y = "Avg. Hourly Riders",
+       fill = "Weather Type") +
+  geom_text(aes(label = round(avg_hourly_riders,1)), vjust = -0.5)
+
+
 
 
 # says same as above but in stacked bar chart
