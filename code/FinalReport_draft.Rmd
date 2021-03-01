@@ -153,6 +153,7 @@ Looking at the overall seasonal impact on hourly demand, it is clear that the Wi
 ggplot(Bike_Seasonality, aes(x=Season, y=Daily_Demand, fill=Season)) +
   geom_bar(position = "dodge", stat = "identity") +
   scale_fill_viridis_d(option = "D", end = 0.75) + 
+  scale_x_discrete(labels = c("Win", "Spr", "Sum", "Fall")) +
   facet_wrap(~Year) +
   coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 300), expand = F) +
   labs(title = "Average Hourly Demand for Bike Rentals", 
@@ -162,7 +163,7 @@ ggplot(Bike_Seasonality, aes(x=Season, y=Daily_Demand, fill=Season)) +
   theme(plot.title = element_text(hjust = 0.5, size = 14),
         plot.subtitle = element_text(hjust = 0.5, size = 11),
         axis.title = element_text(size = 11),
-        axis.text.x = element_text(size = 8),
+        # axis.text.x = element_text(size = 8),
         strip.background = element_rect(fill = "grey80"),
         legend.title = element_text(size = 10),
         legend.text = element_text(size = 9),
@@ -225,45 +226,49 @@ Hourly weather conditions were documented within the dataset and categorized as 
 # Total Riders by Weather Type
 ggplot(B, aes(x = weathersit, y = riders, fill = weathersit)) + 
   geom_col() + 
-  geom_text(aes(label = riders), vjust = -0.5) + 
+  geom_text(aes(label = formatC(riders, big.mark = ",")), vjust = -0.2) + 
   scale_fill_viridis_d(option = "D") + 
-  scale_x_discrete(labels = c("Clear", "Mist", "Light\nPrecip.", "Heavy\nPrecip")) + 
+  scale_x_discrete(labels = c("Clear", "Mist", "Light\nPrecip.", "Heavy\nPrecip.")) + 
+  scale_y_continuous(labels = paste0(c(0, 5, 10, 15, 20, 25)*10^-1, "M"),
+                     breaks =        c(0, 5, 10, 15, 20, 25)*10^5    ) +
   coord_cartesian(xlim = c(0.5, 4.5), ylim = c(0, 2600000), expand = F) +
   labs(title = "Total Riders by Weather Type", 
-       x = "Weather Type", y = "Total Riders",
+       x = "Weather Type", y = "Total Riders (in millions)",
        fill = "Weather Type") +
   theme_igray() + 
   theme(plot.title = element_text(hjust = 0.5, size = 14),
-        plot.margin = unit(c(2, 7, 2, 2), units = "mm"),
+        # plot.margin = unit(c(2, 7, 2, 2), units = "mm"),
         axis.title = element_text(size = 11),
         legend.title = element_text(size = 10),
-        legend.text = element_text(size = 8),
+        # legend.text = element_text(size = 8),
         legend.key = element_blank(),
-        legend.position = "bottom")
+        legend.position = "right")
 ```
 
 As weather conditions worsen, casual riders make up a decreasing proportion of total ridership. This suggests that casual riders may be more influenced by the weather, and are more likely to choose other modes of transportation when weather conditions are unpleasant or uncomfortable.
 
 ```{r}
 ggplot(b_pivotlong.summary, aes(weathersit, y = N, fill = ridertype)) + 
-  geom_bar(stat = "identity", position = "fill") + 
-  labs(title = "How Weather Affects Ridership", 
-       x = "Type of Weather", y = "Proportion of Rider Type",
-       fill = "Rider Type") + 
+  geom_bar(stat = "identity", position = "fill", width = 0.8) + 
   geom_text(data = subset(b_pivotlong.summary, ridertype == "casual"),
             aes(label = round(prop_ridergivenweather, 3)), position = "fill", vjust = -0.2) + 
   geom_text(data = subset(b_pivotlong.summary, ridertype == "registered"),
             aes(label = round(prop_ridergivenweather, 3)), color = "grey90", position = "fill", vjust = 14) + 
   scale_fill_viridis_d(option = "D", begin = 0, end = .45, direction = -1) + 
-  scale_x_discrete(labels = c("Clear", "Mist", "Light\nPrecip.", "Heavy\nPrecip")) + 
+  scale_x_discrete(labels = c("Clear", "Mist", "Light\nPrecip.", "Heavy\nPrecip.")) + 
+  scale_y_continuous(breaks = seq(0, 1, 0.2)) +
+  coord_cartesian(xlim = c(0.4, 4.6), ylim = c(-0.02, 1.06), expand = F) +
+  labs(title = "Rider Type by Weather Condition", 
+       x = "Type of Weather", y = "Proportion of Rider Type",
+       fill = "Rider Type") + 
   theme_igray() + 
   theme(plot.title = element_text(hjust = 0.5, size = 14),
-        plot.margin = unit(c(2, 7, 2, 2), units = "mm"),
+        # plot.margin = unit(c(2, 7, 2, 2), units = "mm"),
         axis.title = element_text(size = 11),
         legend.title = element_text(size = 10),
-        legend.text = element_text(size = 8),
+        # legend.text = element_text(size = 8),
         legend.key = element_blank(),
-        legend.position = "bottom")
+        legend.position = "right")
 ```
 
 # Predicting Total Bike Rental Demand
